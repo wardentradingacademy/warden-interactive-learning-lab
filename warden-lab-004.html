@@ -28,7 +28,7 @@
 <p><strong>Simulation account:</strong> $10,000. <strong>Approved trade budget:</strong> $100, including the stated cost and slippage allowance. Margin is not the risk budget.</p>
 <details><summary>Read the execution assumptions and lab rules</summary>
 <ul>
-<li>One long entry opportunity only. Choose an order or remain flat. No short entry, adding, re-entry, or partial fills in this exercise.</li>
+<li>One long trade maximum. Enter initially, or wait and reconsider a pullback entry at checkpoint 2. No short entry, adding, re-entry after exit, or partial fills in this exercise.</li>
 <li>The fixed protective stop is 4,992.00; the target is 5,016.00. The exercise plan prohibits widening or removing the stop. An early full exit is permitted with a reason.</li>
 <li>MES: $5 per point, $1.50 round-trip fees per contract. ES: $50 per point, $6 round-trip fees per contract. These are fictional fee assumptions.</li>
 <li>For planning, add 0.50 points of slippage allowance per contract. This allowance is a budgeting estimate, not a maximum-loss guarantee.</li>
@@ -40,7 +40,7 @@
 <section class="card" id="stage1" aria-labelledby="planTitle">
 <h2 id="planTitle" tabindex="-1">1. What would you do at 5,000?</h2>
 <p>Choose your action using only the bars currently visible. You do not have to trade.</p>
-<ul><li><strong>Buy market:</strong> enter now; the final fill price can differ from the quote.</li><li><strong>Buy limit at 4,998:</strong> seek a lower entry; the market might never fill your order.</li><li><strong>Buy stop-market at 5,002.25:</strong> enter only after that trigger; it is still below 5,004 resistance and does not confirm a breakout.</li><li><strong>Wait:</strong> submit no order and remain flat.</li></ul>
+<ul><li><strong>Buy market:</strong> enter now; the final fill price can differ from the quote.</li><li><strong>Buy limit at 4,998:</strong> seek a lower entry; the market might never fill your order.</li><li><strong>Buy stop-market at 5,002.25:</strong> enter only after that trigger; it is still below 5,004 resistance and does not confirm a breakout.</li><li><strong>Wait:</strong> submit no order now. Reassess the pullback at the next checkpoint; you may enter then or continue waiting.</li></ul>
 <p>For an entry, use a whole contract quantity that fits the $100 modeled budget. The calculator below updates as you choose. For waiting, enter 0.</p>
 <form id="planForm">
 <div class="grid">
@@ -62,6 +62,17 @@
 <div class="note">Next sequence: price trades above 5,002.25 to 5,003.00, falls through 4,998.00 to 4,997.75, then reaches 4,994.00. Resistance at 5,004 has not been cleared. The 4,992 stop has not yet triggered. No later prices are available.</div>
 <form id="manageForm">
 <label for="management">Your management decision</label><select id="management"></select>
+<div id="pullbackPanel" hidden>
+<h3>New entry — buy the pullback</h3>
+<p>You are flat and may make a fresh decision at 4,994.00. A lower price alone does not establish a valid setup. Explain why the new evidence supports entry and what would invalidate it.</p>
+<p><strong>New quote:</strong> bid 4,994.00 / ask 4,994.25. This choice buys at market. Plan using 4,994.25; the actual fill is supplied only after you lock the decision.</p>
+<div class="grid">
+<div><label for="pullbackContract">Contract for this entry</label><select id="pullbackContract"><option value="MES">MES — $5 per point</option><option value="ES">ES — $50 per point</option></select></div>
+<div><label for="pullbackQty">Contracts for this entry</label><input id="pullbackQty" type="number" min="1" max="100" step="1" value="1"></div>
+</div>
+<div class="note" id="pullbackRisk" aria-live="polite"></div>
+<p><strong>Bracket for this new trade:</strong> stop-market 4,992.00; target 5,016.00. No widening or adding. Selecting this entry commits to that bracket through the next reveal. The original decision to wait remains recorded.</p>
+</div>
 <label for="manageReason">Justify the decision using the plan and current evidence</label><textarea id="manageReason" required maxlength="3000" placeholder="Explain what you know now, your remaining exposure, and the relevant rule."></textarea>
 <p id="manageError" class="error" role="alert"></p>
 <button type="submit">Lock management &amp; reveal outcome</button>
@@ -90,12 +101,12 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const spec={MES:{point:5,fee:1.5},ES:{point:50,fee:6}};
-const entries={market:5000.25,limit:4998,stop:5002.25};
+const entries={market:5000.25,limit:4998,stop:5002.25,pullback:4994.25};
 const fills={market:5000.5,limit:4998,stop:5002.75};
 const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const price=n=>n.toFixed(2);
-const attempt={lab:'Warden Lab 004',version:'1.1',startedAt:new Date().toISOString(),records:[]};
-let phase=1,plan=null,management=null,result=null;
+const attempt={lab:'Warden Lab 004',version:'1.2',startedAt:new Date().toISOString(),records:[]};
+let phase=1,plan=null,trade=null,management=null,result=null;
 // Synthetic OHLC bars. Only the revealed prefix is drawn.
 const bars=[
  [4984,4987,4983,4986],[4986,4989,4985,4988],[4988,4990,4986,4987],
@@ -121,7 +132,7 @@ function renderChart(count){
  if(i%3===0||i===count-1){const mins=30+i*5;draw('text',{x:x(i),y:440,fill:'#b6c3d5','font-size':12,'text-anchor':'middle'},String(8+Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0'));}});
  const last=bars[count-1][3];draw('line',{x1:24,x2:740,y1:y(last),y2:y(last),stroke:'#ffffff','stroke-dasharray':'2 5'});
  draw('text',{x:25,y:22,fill:'#ffffff','font-size':15},'LATEST CLOSE '+price(last)+' · '+count+' bars visible');
- if(plan&&plan.fill!==null&&count>=12){const i=plan.order==='limit'?10:9;draw('circle',{cx:x(i),cy:y(plan.fill),r:6,fill:'#7abaff',stroke:'#ffffff'});draw('text',{x:x(i)+9,y:y(plan.fill)-12,fill:'#7abaff','font-size':12},'BUY '+price(plan.fill));}
+ if(trade&&count>=12){const i=trade.order==='pullback'?11.5:trade.order==='limit'?10:9;draw('circle',{cx:x(i),cy:y(trade.fill),r:6,fill:'#7abaff',stroke:'#ffffff'});draw('text',{x:x(i)+9,y:y(trade.fill)-12,fill:'#7abaff','font-size':12},'BUY '+price(trade.fill));}
  if(result&&result.exit!==null&&count===bars.length){const i=management.action==='exit'?11:management.action==='widen'?16:12;draw('circle',{cx:x(i),cy:y(result.exit),r:6,fill:'#f7d76a',stroke:'#ffffff'});draw('text',{x:x(i)-5,y:y(result.exit)+22,fill:'#f7d76a','font-size':12,'text-anchor':'end'},'EXIT '+price(result.exit));}
 }
 function estimate(contract,order,qty){
@@ -135,6 +146,13 @@ function calculate(){
  const e=estimate(contract,order,Number.isFinite(q)?q:0);
  $('calculator').textContent=order==='wait'?'No order means no position. Use quantity 0. Explain what evidence you need before risking capital.':
  'Planning estimate: '+money(e.risk)+' including round-trip fees and 0.50-point slippage allowance. Maximum whole contracts within $100: '+e.max+'. Gross reward to target: '+money(e.reward)+'. Formula: [(entry − 4,992) × point value + fees + allowance] × quantity. A budget does not cap actual loss.';
+}
+function updatePullback(){
+ const buying=plan&&plan.order==='wait'&&$('management').value==='buyPullback';
+ $('pullbackPanel').hidden=!buying;$('pullbackContract').disabled=!buying;$('pullbackQty').disabled=!buying;
+ if(!buying)return;
+ const contract=$('pullbackContract').value,qty=Number($('pullbackQty').value),e=estimate(contract,'pullback',Number.isFinite(qty)?qty:0);
+ $('pullbackRisk').textContent='New entry planning estimate: '+money(e.risk)+' including stated round-trip fees and 0.50-point slippage allowance. Maximum whole '+contract+' contracts within $100: '+e.max+'. Gross reward to 5,016: '+money(e.reward)+'. Stop: 4,992. Costs and actual fills can differ; this is not a loss guarantee.';
 }
 function record(checkpoint,data){
  const r={checkpoint,recordedAt:new Date().toISOString(),...data};attempt.records.push(r);
@@ -152,11 +170,11 @@ function submitPlan(event){
  if(reason.length<20||evidence.length<20){$('planError').textContent='Write at least 20 characters in each reasoning field.';return;}
  const estimated=estimate(contract,order,qty);
  plan={contract,order,qty,estimated,reason,evidence,fill:order==='wait'?null:fills[order]};
- record('Entry decision',plan);phase=2;$('stage1').hidden=true;$('stage2').hidden=false;
+ trade=order==='wait'?null:plan;record('Entry decision',plan);phase=2;$('stage1').hidden=true;$('stage2').hidden=false;
  $('progress').textContent='Checkpoint 2 of 3 — Manage the move';
  if(order==='wait'){
- $('fillReport').textContent='You submitted no order and remain flat. You have no protective or target orders. Observing the next sequence creates no obligation to enter.';
- $('management').replaceChildren(new Option('Remain flat — no new entry in this exercise','flat'));
+ $('fillReport').textContent='You waited and remain flat, with no working orders. You can now buy the pullback with a fresh risk plan, or continue waiting. Neither choice is automatically correct; use the evidence now visible.';
+ $('management').replaceChildren(new Option('Continue waiting — remain flat','flat'),new Option('Buy the pullback now — new market entry with bracket','buyPullback'));
  }else{
  const s=spec[contract],grossRisk=(plan.fill-4992)*s.point*qty;
  $('fillReport').textContent='Explicit simulated fill: '+qty+' '+contract+' bought at '+price(plan.fill)+'. '+(order==='limit'?'The scenario explicitly assigns a full fill at the limit; a touch alone would not establish a real fill. ':'The actual fill differs from the planning reference. ')+
@@ -164,7 +182,7 @@ function submitPlan(event){
  $('management').replaceChildren(new Option('Maintain the original stop and target','hold'),new Option('Exit all at market — cancel paired exits after fill','exit'),new Option('Widen the stop to 4,984 — leave target unchanged','widen'));
  }
  $('marketText').textContent='Current simulated price: 4,994.00. Buyers have failed to clear 5,004 resistance and have lost some of their earlier upward progress. A lasting reversal remains unconfirmed.';
- renderChart(12);$('chartInstruction').textContent='Your task now: Three more bars are visible. Price reached 5,003 and then fell to 4,994. Review your actual fill below. Choose how to manage the position, or remain flat if you waited. Explain the decision before revealing the remaining bars.';focusTitle('manageTitle');
+ updatePullback();renderChart(12);$('chartInstruction').textContent='Your task now: Three more bars are visible. Price reached 5,003 and then fell to 4,994. Review your actual fill below. Choose how to manage an existing position. If you waited, choose whether to buy the pullback now or remain flat. Explain the decision before revealing the remaining bars.';focusTitle('manageTitle');
 }
 function outcomeFor(p,action){
  if(p.order==='wait')return {exit:null,gross:0,fees:0,net:0};
@@ -175,16 +193,29 @@ function outcomeFor(p,action){
 function submitManagement(event){
  event.preventDefault();if(phase!==2)return;
  const reason=$('manageReason').value.trim();if(reason.length<20){$('manageError').textContent='Explain your management decision in at least 20 characters.';return;}
- management={action:$('management').value,reason};record('Management decision',management);
- result=outcomeFor(plan,management.action);attempt.result=result;phase=3;
+ const action=$('management').value;
+ if(plan.order==='wait'&&action==='buyPullback'){
+ const contract=$('pullbackContract').value,qty=Number($('pullbackQty').value);
+ if(!spec[contract]||!Number.isInteger(qty)||qty<1||qty>100){$('manageError').textContent='Choose a whole contract quantity of 1–100 for the new entry.';return;}
+ const estimated=estimate(contract,'pullback',qty);
+ if(estimated.risk>100){$('manageError').textContent='This new entry exceeds the $100 modeled budget. Reduce the quantity, choose MES, or continue waiting.';return;}
+ trade={contract,qty,order:'pullback',estimated,fill:4994.5,reason,stop:4992,target:5016,enteredAfterVisibleBars:12};
+ }
+ management={action,reason};record('Management decision',management);
+ if(trade&&trade.order==='pullback')record('Pullback entry',{...trade});
+ result=outcomeFor(trade||plan,management.action);attempt.result=result;phase=3;
  $('stage2').hidden=true;$('stage3').hidden=false;$('progress').textContent='Checkpoint 3 of 3 — Evaluate the process';
  $('outcome').textContent='Outcome sequence: price falls through 4,992 to 4,991.50, then recovers to 5,016 and ends the exercise at 5,004. '+
- (plan.order==='wait'?'You remained flat. No fills, fees, or trade profit/loss.':management.action==='exit'?'Your earlier market exit was explicitly filled at 4,993.75. Paired exits were canceled after that fill.':management.action==='widen'?'Your widened 4,984 stop was not reached. The scenario explicitly fills the target at 5,016 and cancels the paired stop. You made money after breaking the no-widening rule.':'Your original stop triggered; the supplied stop-market fill is 4,991.75, below the stop price. The paired target was canceled. The later recovery did not reopen your position.');
+ (!trade?'You remained flat. No fills, fees, or trade profit/loss.':management.action==='exit'?'Your earlier market exit was explicitly filled at 4,993.75. Paired exits were canceled after that fill.':management.action==='widen'?'Your widened 4,984 stop was not reached. The scenario explicitly fills the target at 5,016 and cancels the paired stop. You made money after breaking the no-widening rule.':'Your original stop triggered; the supplied stop-market fill is 4,991.75, below the stop price. The paired target was canceled. The later recovery did not reopen your position.');
+ if(trade&&trade.order==='pullback'){
+ const fill=document.createElement('p');fill.textContent='New pullback trade: '+trade.qty+' '+trade.contract+' bought at the explicitly supplied market fill of 4,994.50, after your second decision. Assume the full-quantity 4,992 stop-market and 5,016 target were accepted and working. The stop subsequently filled at 4,991.75; the target was canceled. The later recovery does not retroactively establish that buying or waiting was correct.';$('outcome').appendChild(fill);
+ }
  const pnl=document.createElement('p');pnl.textContent='Gross P/L: '+money(result.gross)+' · Fees: '+money(result.fees)+' · Net P/L: '+money(result.net)+'. Slippage is reflected in the actual fills; the planning allowance is not deducted again.';$('outcome').appendChild(pnl);
  const messages=[];
- if(plan.order==='wait')messages.push('Waiting preserved capital while the evidence was uncertain. The later rally does not make waiting wrong. Your written explanation still needs review.');
+ if(!trade)messages.push('Waiting preserved capital while the evidence was uncertain. The later rally does not make waiting wrong. Your written explanation still needs review.');
  else{
- messages.push(plan.estimated.risk<=100?'Your initial modeled exposure fit the $100 budget. This does not prove a strategy edge or guarantee a capped loss.':'Your initial modeled exposure exceeded the $100 budget. A profitable recovery cannot justify that sizing decision.');
+ messages.push(trade.estimated.risk<=100?'Your entry’s modeled exposure fit the $100 budget. This does not prove a strategy edge or guarantee a capped loss.':'Your entry’s modeled exposure exceeded the $100 budget. A profitable recovery cannot justify that sizing decision.');
+ if(trade.order==='pullback')messages.push('Waiting kept a later entry available. Your first decision was not changed: the pullback entry is a separate recorded decision using the twelve visible bars. A tighter stop distance permits different sizing, but does not prove an edge.');
  messages.push(management.action==='widen'?'You violated the explicit no-widening rule. The profitable outcome does not repair the decision.':management.action==='exit'?'An early full exit was permitted. Assess whether your stated reason was grounded in current evidence, rather than judging it by later prices.':'Maintaining the original protection followed the no-widening rule. A stop-out followed by recovery does not by itself establish a mistake.');
  messages.push('Market orders prioritized execution; limits controlled the worst entry price but carried non-fill risk; stop-market entries required a trigger but did not guarantee the trigger price. This one path does not rank their long-term performance.');
  }
@@ -199,6 +230,7 @@ function submitReview(event){
  $('reviewForm').hidden=true;$('completed').hidden=false;$('progress').textContent='Practice complete — Save your journal';focusTitle('completeTitle');
 }
 $('contract').addEventListener('change',calculate);$('order').addEventListener('change',calculate);$('qty').addEventListener('input',calculate);
+$('management').addEventListener('change',updatePullback);$('pullbackContract').addEventListener('change',updatePullback);$('pullbackQty').addEventListener('input',updatePullback);
 $('planForm').addEventListener('submit',submitPlan);$('manageForm').addEventListener('submit',submitManagement);$('reviewForm').addEventListener('submit',submitReview);
 $('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(attempt,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='warden-lab-004-'+attempt.startedAt.replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('print').addEventListener('click',()=>window.print());calculate();renderChart(9);
