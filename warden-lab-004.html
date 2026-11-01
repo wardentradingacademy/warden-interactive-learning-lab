@@ -22,12 +22,9 @@
 <section class="card" aria-labelledby="boardTitle">
 <h2 id="boardTitle">The opening position</h2>
 <p id="marketText">The fictional ES market has advanced from 4,984 toward resistance at 5,004. The latest completed five-minute candle closed at 5,000.00. Buyers have made upward progress, but continuation is unconfirmed.</p>
-<svg viewBox="0 0 760 210" role="img" aria-label="Reference levels, not a price history: objective 5016, resistance 5004, current reference 5000, invalidation stop 4992.">
-<rect width="760" height="210" rx="8" fill="#0b1423"/>
-<g stroke="#35465f" stroke-dasharray="6 6"><path d="M25 35H560M25 90H560M25 125H560M25 180H560"/></g>
-<g fill="#e8edf5" font-family="Arial" font-size="16"><text x="575" y="40">5,016 objective</text><text x="575" y="95">5,004 resistance</text><text x="575" y="130">5,000 reference</text><text x="575" y="185">4,992 stop</text></g>
-<text x="30" y="65" fill="#d4af37" font-family="Arial" font-size="15">LOCATION MAP · NOT TO SCALE</text>
-</svg>
+<div style="overflow-x:auto;border:1px solid #35465f;border-radius:8px;"><svg id="priceChart" viewBox="0 0 940 460" style="min-width:660px" role="img" aria-labelledby="chartTitle chartDescription"></svg></div>
+<p class="muted">Five-minute candles · Times shown are fictional Central Time bar-close labels. Green = close above open; red = close below open. Future bars stay hidden until you lock a decision.</p>
+<div class="note" id="chartInstruction"><strong>Your task now:</strong> Look at the candles approaching 5,004 resistance. Below the chart, choose whether to buy now, wait for a lower price, buy only after a trigger, or stay out. Select a contract and quantity, explain why, then lock your decision to reveal the next three bars.</div>
 <p><strong>Simulation account:</strong> $10,000. <strong>Approved trade budget:</strong> $100, including the stated cost and slippage allowance. Margin is not the risk budget.</p>
 <details><summary>Read the execution assumptions and lab rules</summary>
 <ul>
@@ -41,7 +38,10 @@
 </details>
 </section>
 <section class="card" id="stage1" aria-labelledby="planTitle">
-<h2 id="planTitle" tabindex="-1">1. Choose your execution</h2>
+<h2 id="planTitle" tabindex="-1">1. What would you do at 5,000?</h2>
+<p>Choose your action using only the bars currently visible. You do not have to trade.</p>
+<ul><li><strong>Buy market:</strong> enter now; the final fill price can differ from the quote.</li><li><strong>Buy limit at 4,998:</strong> seek a lower entry; the market might never fill your order.</li><li><strong>Buy stop-market at 5,002.25:</strong> enter only after that trigger; it is still below 5,004 resistance and does not confirm a breakout.</li><li><strong>Wait:</strong> submit no order and remain flat.</li></ul>
+<p>For an entry, use a whole contract quantity that fits the $100 modeled budget. The calculator below updates as you choose. For waiting, enter 0.</p>
 <form id="planForm">
 <div class="grid">
 <div><label for="contract">Contract</label><select id="contract"><option value="MES">MES — $5 per point</option><option value="ES">ES — $50 per point</option></select></div>
@@ -94,8 +94,36 @@ const entries={market:5000.25,limit:4998,stop:5002.25};
 const fills={market:5000.5,limit:4998,stop:5002.75};
 const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const price=n=>n.toFixed(2);
-const attempt={lab:'Warden Lab 004',version:'1.0',startedAt:new Date().toISOString(),records:[]};
+const attempt={lab:'Warden Lab 004',version:'1.1',startedAt:new Date().toISOString(),records:[]};
 let phase=1,plan=null,management=null,result=null;
+// Synthetic OHLC bars. Only the revealed prefix is drawn.
+const bars=[
+ [4984,4987,4983,4986],[4986,4989,4985,4988],[4988,4990,4986,4987],
+ [4987,4992,4987,4991],[4991,4994,4990,4993],[4993,4994,4990,4991],
+ [4991,4997,4991,4996],[4996,4999,4995,4998],[4998,5001,4997.5,5000],
+ [5000,5003,4999.5,5002],[5002,5002.5,4997.75,4998],[4998,4999,4993.5,4994],
+ [4994,4995,4991.5,4993],[4993,4998,4992.5,4997],[4997,5005,4996,5004],
+ [5004,5011,5003,5010],[5010,5016,5009,5015],[5015,5015.5,5003,5004]
+];
+function renderChart(count){
+ const chart=$('priceChart'),ns='http://www.w3.org/2000/svg';chart.replaceChildren();
+ const y=p=>35+(5020-p)*9.5,x=i=>48+i*38;
+ function draw(tag,attrs,text){const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(text!==undefined)n.textContent=text;chart.appendChild(n);return n;}
+ draw('title',{id:'chartTitle'},'Fictional five-minute ES candles');
+ draw('desc',{id:'chartDescription'},count+' of '+bars.length+' bars revealed. Latest close '+bars[count-1][3]+'. Resistance 5004; planned stop 4992; target 5016.');
+ draw('rect',{width:940,height:460,fill:'#0b1423'});
+ for(let p=4980;p<=5020;p+=4){draw('line',{x1:24,x2:740,y1:y(p),y2:y(p),stroke:'#263950'});draw('text',{x:750,y:y(p)+5,fill:'#b6c3d5','font-size':14},p.toFixed(2));}
+ const edge=x(count-1)+20;
+ if(count<bars.length){draw('rect',{x:edge,y:35,width:Math.max(0,730-edge),height:380,fill:'#1b304c',opacity:.6});draw('text',{x:edge+12,y:59,fill:'#b6c3d5','font-size':13},'NEXT BARS HIDDEN');}
+ [[5016,'TARGET','#d4af37'],[5004,'RESISTANCE','#d4af37'],[4992,'ORIGINAL STOP','#ee9198']].forEach(([p,t,c])=>{
+ draw('line',{x1:24,x2:740,y1:y(p),y2:y(p),stroke:c,'stroke-dasharray':'6 5'});draw('text',{x:830,y:y(p)+5,fill:c,'font-size':12},t);});
+ bars.slice(0,count).forEach(([o,h,l,c],i)=>{const color=c>=o?'#4bd4af':'#f18b94';draw('line',{x1:x(i),x2:x(i),y1:y(h),y2:y(l),stroke:color,'stroke-width':2});const n=draw('rect',{x:x(i)-10,y:Math.min(y(o),y(c)),width:20,height:Math.max(2,Math.abs(y(o)-y(c))),fill:color});const title=document.createElementNS(ns,'title');title.textContent='Bar '+(i+1)+': open '+o+', high '+h+', low '+l+', close '+c;n.appendChild(title);
+ if(i%3===0||i===count-1){const mins=30+i*5;draw('text',{x:x(i),y:440,fill:'#b6c3d5','font-size':12,'text-anchor':'middle'},String(8+Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0'));}});
+ const last=bars[count-1][3];draw('line',{x1:24,x2:740,y1:y(last),y2:y(last),stroke:'#ffffff','stroke-dasharray':'2 5'});
+ draw('text',{x:25,y:22,fill:'#ffffff','font-size':15},'LATEST CLOSE '+price(last)+' · '+count+' bars visible');
+ if(plan&&plan.fill!==null&&count>=12){const i=plan.order==='limit'?10:9;draw('circle',{cx:x(i),cy:y(plan.fill),r:6,fill:'#7abaff',stroke:'#ffffff'});draw('text',{x:x(i)+9,y:y(plan.fill)-12,fill:'#7abaff','font-size':12},'BUY '+price(plan.fill));}
+ if(result&&result.exit!==null&&count===bars.length){const i=management.action==='exit'?11:management.action==='widen'?16:12;draw('circle',{cx:x(i),cy:y(result.exit),r:6,fill:'#f7d76a',stroke:'#ffffff'});draw('text',{x:x(i)-5,y:y(result.exit)+22,fill:'#f7d76a','font-size':12,'text-anchor':'end'},'EXIT '+price(result.exit));}
+}
 function estimate(contract,order,qty){
  if(order==='wait')return {entry:null,risk:0,reward:0,max:0};
  const s=spec[contract],entry=entries[order];
@@ -115,7 +143,7 @@ function record(checkpoint,data){
  const title=document.createElement('h3');title.textContent=checkpoint+' · '+r.recordedAt;block.appendChild(title);
  const content=document.createElement('p');content.textContent=Object.entries(data).map(([k,v])=>k+': '+(typeof v==='object'?JSON.stringify(v):v)).join('\n');block.appendChild(content);$('journal').appendChild(block);
 }
-function focusTitle(id){$(id).focus();$(id).scrollIntoView({block:'start',behavior:'smooth'});}
+function focusTitle(id){$(id).focus({preventScroll:true});if(id==='manageTitle'||id==='reviewTitle'){$('boardTitle').scrollIntoView({block:'start',behavior:'smooth'});}else{$(id).scrollIntoView({block:'start',behavior:'smooth'});}}
 function submitPlan(event){
  event.preventDefault();if(phase!==1)return;
  const order=$('order').value,contract=$('contract').value,qty=Number($('qty').value);
@@ -136,7 +164,7 @@ function submitPlan(event){
  $('management').replaceChildren(new Option('Maintain the original stop and target','hold'),new Option('Exit all at market — cancel paired exits after fill','exit'),new Option('Widen the stop to 4,984 — leave target unchanged','widen'));
  }
  $('marketText').textContent='Current simulated price: 4,994.00. Buyers have failed to clear 5,004 resistance and have lost some of their earlier upward progress. A lasting reversal remains unconfirmed.';
- focusTitle('manageTitle');
+ renderChart(12);$('chartInstruction').textContent='Your task now: Three more bars are visible. Price reached 5,003 and then fell to 4,994. Review your actual fill below. Choose how to manage the position, or remain flat if you waited. Explain the decision before revealing the remaining bars.';focusTitle('manageTitle');
 }
 function outcomeFor(p,action){
  if(p.order==='wait')return {exit:null,gross:0,fees:0,net:0};
@@ -162,7 +190,7 @@ function submitManagement(event){
  }
  messages.push('The feedback checks modeled sizing and the explicit management rule. It does not automatically judge the quality of your written reasoning. Review that separately.');
  messages.forEach(message=>{const p=document.createElement('p');p.textContent=message;$('feedback').appendChild(p);});
- record('Outcome revealed',result);focusTitle('reviewTitle');
+ record('Outcome revealed',result);renderChart(bars.length);$('chartInstruction').textContent='Your task now: The remaining bars are visible. Entry and exit markers show your simulated fills. Read the result and process feedback below, then record your review and save your journal.';focusTitle('reviewTitle');
 }
 function submitReview(event){
  event.preventDefault();if(phase!==3)return;const reflection=$('reflection').value.trim();
@@ -173,7 +201,7 @@ function submitReview(event){
 $('contract').addEventListener('change',calculate);$('order').addEventListener('change',calculate);$('qty').addEventListener('input',calculate);
 $('planForm').addEventListener('submit',submitPlan);$('manageForm').addEventListener('submit',submitManagement);$('reviewForm').addEventListener('submit',submitReview);
 $('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(attempt,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='warden-lab-004-'+attempt.startedAt.replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-$('print').addEventListener('click',()=>window.print());calculate();
+$('print').addEventListener('click',()=>window.print());calculate();renderChart(9);
 </script>
 </body>
 </html>
