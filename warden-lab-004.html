@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warden Lab 004 — The Execution Challenge</title>
+<style>
+:root{color-scheme:dark;--navy:#10213b;--gold:#d4af37;--ink:#e8edf5;--muted:#b6c3d5;--line:#35465f}
+*{box-sizing:border-box}body{margin:0;background:#0b1423;color:var(--ink);font:16px/1.7 Arial,sans-serif}main{max-width:1000px;margin:auto;padding:24px 16px 60px}header,.card{background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px}header{border-top:3px solid var(--gold)}h1{font-size:32px;line-height:1.25;margin:12px 0}h2{color:var(--gold);font-size:23px;line-height:1.4}h3{font-size:18px}.kicker{color:var(--gold);letter-spacing:2px;font-size:12px;font-weight:bold}.muted,small{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}label{display:block;font-weight:bold;margin:12px 0 6px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;background:#0b1423;color:var(--ink);border:1px solid #71829a;border-radius:6px;padding:11px}textarea{min-height:110px;resize:vertical}button{cursor:pointer;background:var(--gold);color:#10213b;border:0;border-radius:6px;padding:12px 18px;font-weight:bold;margin:12px 10px 0 0}button.secondary{background:#263c59;color:white;border:1px solid #71829a}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f5d77b;outline-offset:3px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left}.note{border-left:4px solid var(--gold);background:#1b304c;padding:16px 20px;margin:16px 0}.error{color:#ffbcbc;font-weight:bold}.badge{display:inline-block;padding:4px 10px;background:#263c59;border-radius:4px;font-size:14px}.log{border-top:1px solid var(--line);padding-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}.table-wrap{overflow-x:auto}[hidden]{display:none!important}svg{width:100%;height:auto;display:block}dt{color:var(--muted)}dd{margin:0 0 12px;font-weight:bold}@media(max-width:600px){header,.card{padding:18px}h1{font-size:26px}}@media print{body{background:white;color:black}header,.card{background:white;color:black;border:1px solid #777}h2,.kicker,.muted,small,dt{color:#333}button{display:none}.note{background:#eee;color:black}th,td{border-color:#aaa}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="kicker">WARDEN GRANDMASTER ACADEMY · CHAPTER 4</div>
+<h1>Warden Lab 004<br>The Execution Challenge</h1>
+<p>Every order is a move. Know its consequences before you act.</p>
+<p class="muted">Fictional training exercise · No live orders · No real market data</p>
+</header>
+<div class="note">Record your reasoning before each reveal. Your decision cannot be edited after submission within this attempt. This practice exercise does not send responses or grades to the Academy. Keep this page open and download your journal at the end; refreshing starts a new attempt.</div>
+<p id="progress" class="badge" aria-live="polite">Checkpoint 1 of 3 — Plan the move</p>
+<section class="card" aria-labelledby="boardTitle">
+<h2 id="boardTitle">The opening position</h2>
+<p id="marketText">The fictional ES market has advanced from 4,984 toward resistance at 5,004. The latest completed five-minute candle closed at 5,000.00. Buyers have made upward progress, but continuation is unconfirmed.</p>
+<svg viewBox="0 0 760 210" role="img" aria-label="Reference levels, not a price history: objective 5016, resistance 5004, current reference 5000, invalidation stop 4992.">
+<rect width="760" height="210" rx="8" fill="#0b1423"/>
+<g stroke="#35465f" stroke-dasharray="6 6"><path d="M25 35H560M25 90H560M25 125H560M25 180H560"/></g>
+<g fill="#e8edf5" font-family="Arial" font-size="16"><text x="575" y="40">5,016 objective</text><text x="575" y="95">5,004 resistance</text><text x="575" y="130">5,000 reference</text><text x="575" y="185">4,992 stop</text></g>
+<text x="30" y="65" fill="#d4af37" font-family="Arial" font-size="15">LOCATION MAP · NOT TO SCALE</text>
+</svg>
+<p><strong>Simulation account:</strong> $10,000. <strong>Approved trade budget:</strong> $100, including the stated cost and slippage allowance. Margin is not the risk budget.</p>
+<details><summary>Read the execution assumptions and lab rules</summary>
+<ul>
+<li>One long entry opportunity only. Choose an order or remain flat. No short entry, adding, re-entry, or partial fills in this exercise.</li>
+<li>The fixed protective stop is 4,992.00; the target is 5,016.00. The exercise plan prohibits widening or removing the stop. An early full exit is permitted with a reason.</li>
+<li>MES: $5 per point, $1.50 round-trip fees per contract. ES: $50 per point, $6 round-trip fees per contract. These are fictional fee assumptions.</li>
+<li>For planning, add 0.50 points of slippage allowance per contract. This allowance is a budgeting estimate, not a maximum-loss guarantee.</li>
+<li>Hypothetical quote: bid 5,000.00 / ask 5,000.25. Prices are scenario assumptions, not a depth-of-market model. Fills are explicitly supplied at each reveal; a real limit touch would not guarantee a fill.</li>
+<li>Stops are modeled as stop-market exits. Completed exits cancel the paired target in this simplified exercise. Real order handling must be verified with the platform and broker.</li>
+</ul>
+</details>
+</section>
+<section class="card" id="stage1" aria-labelledby="planTitle">
+<h2 id="planTitle" tabindex="-1">1. Choose your execution</h2>
+<form id="planForm">
+<div class="grid">
+<div><label for="contract">Contract</label><select id="contract"><option value="MES">MES — $5 per point</option><option value="ES">ES — $50 per point</option></select></div>
+<div><label for="order">Entry decision</label><select id="order"><option value="wait">Wait — no order</option><option value="market">Buy market — plan at 5,000.25</option><option value="limit">Buy limit — 4,998.00</option><option value="stop">Buy stop-market — trigger 5,002.25</option></select></div>
+<div><label for="qty">Contracts (0 if waiting)</label><input id="qty" type="number" min="0" max="100" step="1" value="0" required></div>
+</div>
+<div class="note" id="calculator" aria-live="polite"></div>
+<label for="reason">Why is this order or waiting appropriate here?</label><textarea id="reason" required maxlength="3000" placeholder="Explain urgency versus price control, resistance, and what is still unknown."></textarea>
+<label for="evidence">What would support or invalidate your interpretation?</label><textarea id="evidence" required maxlength="3000" placeholder="Describe observable behavior, not a claim about hidden institutional intentions."></textarea>
+<p class="muted">This is a mechanics exercise, not a claim that any of these entry methods has a proven edge.</p>
+<p id="planError" class="error" role="alert"></p>
+<button type="submit">Lock decision &amp; reveal execution</button>
+</form>
+</section>
+<section class="card" id="stage2" hidden aria-labelledby="manageTitle">
+<h2 id="manageTitle" tabindex="-1">2. Respond to the actual position</h2>
+<div id="fillReport"></div>
+<div class="note">Next sequence: price trades above 5,002.25 to 5,003.00, falls through 4,998.00 to 4,997.75, then reaches 4,994.00. Resistance at 5,004 has not been cleared. The 4,992 stop has not yet triggered. No later prices are available.</div>
+<form id="manageForm">
+<label for="management">Your management decision</label><select id="management"></select>
+<label for="manageReason">Justify the decision using the plan and current evidence</label><textarea id="manageReason" required maxlength="3000" placeholder="Explain what you know now, your remaining exposure, and the relevant rule."></textarea>
+<p id="manageError" class="error" role="alert"></p>
+<button type="submit">Lock management &amp; reveal outcome</button>
+</form>
+</section>
+<section class="card" id="stage3" hidden aria-labelledby="reviewTitle">
+<h2 id="reviewTitle" tabindex="-1">3. Review without hindsight</h2>
+<div id="outcome"></div>
+<h3>Process feedback</h3><div id="feedback"></div>
+<form id="reviewForm">
+<label for="reflection">What would you repeat or improve, using only information available at each decision?</label><textarea id="reflection" required maxlength="3000"></textarea>
+<p id="reviewError" class="error" role="alert"></p>
+<button type="submit">Complete decision journal</button>
+</form>
+</section>
+<section class="card" id="completed" hidden aria-labelledby="completeTitle">
+<h2 id="completeTitle" tabindex="-1">Decision journal complete</h2>
+<p>This is a practice completion, not certification or an LMS grade. Written reasoning needs instructor review. Downloads contain your responses and browser-recorded timestamps; they are self-reported practice records, not tamper-proof assessments.</p>
+<button id="download" type="button">Download journal (.json)</button><button id="print" type="button" class="secondary">Print / save PDF</button>
+<p class="muted">Return to your Academy lesson after saving your journal.</p>
+</section>
+<section class="card" id="journalSection" hidden><h2>Your locked decisions</h2><div id="journal"></div></section>
+<footer class="muted">Warden Grandmaster Academy · The Trading Grandmaster · Britton Brown<br>Judge the move by the plan and evidence available when it was made.</footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const spec={MES:{point:5,fee:1.5},ES:{point:50,fee:6}};
+const entries={market:5000.25,limit:4998,stop:5002.25};
+const fills={market:5000.5,limit:4998,stop:5002.75};
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
+const price=n=>n.toFixed(2);
+const attempt={lab:'Warden Lab 004',version:'1.0',startedAt:new Date().toISOString(),records:[]};
+let phase=1,plan=null,management=null,result=null;
+function estimate(contract,order,qty){
+ if(order==='wait')return {entry:null,risk:0,reward:0,max:0};
+ const s=spec[contract],entry=entries[order];
+ const per=(entry-4992)*s.point+s.fee+0.5*s.point;
+ return {entry,risk:per*qty,reward:(5016-entry)*s.point*qty,max:Math.floor(100/per)};
+}
+function calculate(){
+ const order=$('order').value,contract=$('contract').value,q=Number($('qty').value);
+ const e=estimate(contract,order,Number.isFinite(q)?q:0);
+ $('calculator').textContent=order==='wait'?'No order means no position. Use quantity 0. Explain what evidence you need before risking capital.':
+ 'Planning estimate: '+money(e.risk)+' including round-trip fees and 0.50-point slippage allowance. Maximum whole contracts within $100: '+e.max+'. Gross reward to target: '+money(e.reward)+'. Formula: [(entry − 4,992) × point value + fees + allowance] × quantity. A budget does not cap actual loss.';
+}
+function record(checkpoint,data){
+ const r={checkpoint,recordedAt:new Date().toISOString(),...data};attempt.records.push(r);
+ $('journalSection').hidden=false;
+ const block=document.createElement('div');block.className='log';
+ const title=document.createElement('h3');title.textContent=checkpoint+' · '+r.recordedAt;block.appendChild(title);
+ const content=document.createElement('p');content.textContent=Object.entries(data).map(([k,v])=>k+': '+(typeof v==='object'?JSON.stringify(v):v)).join('\n');block.appendChild(content);$('journal').appendChild(block);
+}
+function focusTitle(id){$(id).focus();$(id).scrollIntoView({block:'start',behavior:'smooth'});}
+function submitPlan(event){
+ event.preventDefault();if(phase!==1)return;
+ const order=$('order').value,contract=$('contract').value,qty=Number($('qty').value);
+ const reason=$('reason').value.trim(),evidence=$('evidence').value.trim();
+ if(!Number.isInteger(qty)||qty<0||qty>100||(order==='wait'?qty!==0:qty<1)){$('planError').textContent='Use a whole quantity of 1–100 for an entry, or 0 for waiting.';return;}
+ if(reason.length<20||evidence.length<20){$('planError').textContent='Write at least 20 characters in each reasoning field.';return;}
+ const estimated=estimate(contract,order,qty);
+ plan={contract,order,qty,estimated,reason,evidence,fill:order==='wait'?null:fills[order]};
+ record('Entry decision',plan);phase=2;$('stage1').hidden=true;$('stage2').hidden=false;
+ $('progress').textContent='Checkpoint 2 of 3 — Manage the move';
+ if(order==='wait'){
+ $('fillReport').textContent='You submitted no order and remain flat. You have no protective or target orders. Observing the next sequence creates no obligation to enter.';
+ $('management').replaceChildren(new Option('Remain flat — no new entry in this exercise','flat'));
+ }else{
+ const s=spec[contract],grossRisk=(plan.fill-4992)*s.point*qty;
+ $('fillReport').textContent='Explicit simulated fill: '+qty+' '+contract+' bought at '+price(plan.fill)+'. '+(order==='limit'?'The scenario explicitly assigns a full fill at the limit; a touch alone would not establish a real fill. ':'The actual fill differs from the planning reference. ')+
+ 'Assume the full-quantity 4,992 stop-market and 5,016 target are accepted and working. Actual fill-to-stop gross risk: '+money(grossRisk)+'. With stated round-trip fees: '+money(grossRisk+s.fee*qty)+' before any exit slippage. Reassess this against the $100 budget.';
+ $('management').replaceChildren(new Option('Maintain the original stop and target','hold'),new Option('Exit all at market — cancel paired exits after fill','exit'),new Option('Widen the stop to 4,984 — leave target unchanged','widen'));
+ }
+ $('marketText').textContent='Current simulated price: 4,994.00. Buyers have failed to clear 5,004 resistance and have lost some of their earlier upward progress. A lasting reversal remains unconfirmed.';
+ focusTitle('manageTitle');
+}
+function outcomeFor(p,action){
+ if(p.order==='wait')return {exit:null,gross:0,fees:0,net:0};
+ const exit=action==='exit'?4993.75:action==='widen'?5016:4991.75;
+ const s=spec[p.contract],gross=(exit-p.fill)*s.point*p.qty,fees=s.fee*p.qty;
+ return {exit,gross,fees,net:gross-fees};
+}
+function submitManagement(event){
+ event.preventDefault();if(phase!==2)return;
+ const reason=$('manageReason').value.trim();if(reason.length<20){$('manageError').textContent='Explain your management decision in at least 20 characters.';return;}
+ management={action:$('management').value,reason};record('Management decision',management);
+ result=outcomeFor(plan,management.action);attempt.result=result;phase=3;
+ $('stage2').hidden=true;$('stage3').hidden=false;$('progress').textContent='Checkpoint 3 of 3 — Evaluate the process';
+ $('outcome').textContent='Outcome sequence: price falls through 4,992 to 4,991.50, then recovers to 5,016 and ends the exercise at 5,004. '+
+ (plan.order==='wait'?'You remained flat. No fills, fees, or trade profit/loss.':management.action==='exit'?'Your earlier market exit was explicitly filled at 4,993.75. Paired exits were canceled after that fill.':management.action==='widen'?'Your widened 4,984 stop was not reached. The scenario explicitly fills the target at 5,016 and cancels the paired stop. You made money after breaking the no-widening rule.':'Your original stop triggered; the supplied stop-market fill is 4,991.75, below the stop price. The paired target was canceled. The later recovery did not reopen your position.');
+ const pnl=document.createElement('p');pnl.textContent='Gross P/L: '+money(result.gross)+' · Fees: '+money(result.fees)+' · Net P/L: '+money(result.net)+'. Slippage is reflected in the actual fills; the planning allowance is not deducted again.';$('outcome').appendChild(pnl);
+ const messages=[];
+ if(plan.order==='wait')messages.push('Waiting preserved capital while the evidence was uncertain. The later rally does not make waiting wrong. Your written explanation still needs review.');
+ else{
+ messages.push(plan.estimated.risk<=100?'Your initial modeled exposure fit the $100 budget. This does not prove a strategy edge or guarantee a capped loss.':'Your initial modeled exposure exceeded the $100 budget. A profitable recovery cannot justify that sizing decision.');
+ messages.push(management.action==='widen'?'You violated the explicit no-widening rule. The profitable outcome does not repair the decision.':management.action==='exit'?'An early full exit was permitted. Assess whether your stated reason was grounded in current evidence, rather than judging it by later prices.':'Maintaining the original protection followed the no-widening rule. A stop-out followed by recovery does not by itself establish a mistake.');
+ messages.push('Market orders prioritized execution; limits controlled the worst entry price but carried non-fill risk; stop-market entries required a trigger but did not guarantee the trigger price. This one path does not rank their long-term performance.');
+ }
+ messages.push('The feedback checks modeled sizing and the explicit management rule. It does not automatically judge the quality of your written reasoning. Review that separately.');
+ messages.forEach(message=>{const p=document.createElement('p');p.textContent=message;$('feedback').appendChild(p);});
+ record('Outcome revealed',result);focusTitle('reviewTitle');
+}
+function submitReview(event){
+ event.preventDefault();if(phase!==3)return;const reflection=$('reflection').value.trim();
+ if(reflection.length<20){$('reviewError').textContent='Write at least 20 characters for your review.';return;}
+ record('Post-outcome reflection',{reflection});attempt.completedAt=new Date().toISOString();phase=4;
+ $('reviewForm').hidden=true;$('completed').hidden=false;$('progress').textContent='Practice complete — Save your journal';focusTitle('completeTitle');
+}
+$('contract').addEventListener('change',calculate);$('order').addEventListener('change',calculate);$('qty').addEventListener('input',calculate);
+$('planForm').addEventListener('submit',submitPlan);$('manageForm').addEventListener('submit',submitManagement);$('reviewForm').addEventListener('submit',submitReview);
+$('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(attempt,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='warden-lab-004-'+attempt.startedAt.replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('print').addEventListener('click',()=>window.print());calculate();
+</script>
+</body>
+</html>
