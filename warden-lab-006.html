@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warden Lab 006 — The Liquidity Sweep</title>
+<style>
+:root{color-scheme:dark;--gold:#d4af37;--navy:#10213b;--ink:#e8edf5;--muted:#b6c3d5;--line:#35465f}*{box-sizing:border-box}body{margin:0;background:#0b1423;color:var(--ink);font:16px/1.65 Arial,sans-serif}main{max-width:1120px;margin:auto;padding:24px 16px 60px}header,.card{background:var(--navy);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px}header{border-top:3px solid var(--gold)}h1{font-size:32px;line-height:1.25;margin:12px 0}h2{color:var(--gold);font-size:24px;line-height:1.35}h3{font-size:18px}.kicker{color:var(--gold);font-size:12px;font-weight:bold;letter-spacing:2px}.muted,small{color:var(--muted)}.note{background:#1b304c;border-left:4px solid var(--gold);padding:16px 20px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}label{display:block;font-weight:bold;margin:12px 0 6px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;background:#0b1423;color:var(--ink);border:1px solid #71829a;border-radius:6px;padding:10px}textarea{min-height:95px;resize:vertical}button{background:var(--gold);color:#10213b;cursor:pointer;border:0;border-radius:6px;padding:12px 18px;font-weight:bold;margin:12px 10px 0 0}button.secondary{background:#263c59;color:white;border:1px solid #71829a}:focus-visible{outline:3px solid #f5d77b;outline-offset:3px}button:disabled{opacity:.5;cursor:default}.error{color:#ffbcbc;font-weight:bold}[hidden]{display:none!important}.scroll{overflow-x:auto}svg{display:block;width:100%;min-width:720px;height:auto}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}.pill{background:#263c59;padding:5px 10px;border-radius:4px;display:inline-block}.entry{border-top:1px solid var(--line);padding:12px 0;white-space:pre-wrap;overflow-wrap:anywhere}.stats{display:flex;flex-wrap:wrap;gap:12px}.stats span{background:#0b1423;padding:9px 13px;border-radius:6px}@media(max-width:600px){header,.card{padding:16px}h1{font-size:26px}}@media print{body,header,.card{background:white;color:black}h2,.muted,.kicker,small{color:#333}button,form{display:none}.note,.stats span{background:#eee;color:black}.entry{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="kicker">WARDEN GRANDMASTER ACADEMY · CHAPTER 6</div><h1>Warden Lab 006<br>The Liquidity Sweep</h1><p>Map the level. Watch the response. Record your decision before the next reveal.</p><small>Fictional ES auction · Five-minute bars · MES practice execution · No live orders</small></header>
+<div class="note"><strong>How to use the lab:</strong> Study the visible candles and evidence below. Record your interpretation, an alternative, and what would change your mind. Then choose an action and lock it to reveal three more bars. <strong>Waiting keeps later entries available.</strong></div>
+<p class="muted">Responses stay in this open page until downloaded. Refreshing starts a new attempt. There is no Academy submission, account login, or LMS grade connection in this practice file.</p>
+<section class="card" aria-labelledby="chartHeading">
+<p id="progress" class="pill" aria-live="polite"></p><h2 id="chartHeading" tabindex="-1">The sweep of the prior day’s high at 5,020</h2>
+<div class="scroll"><svg id="chart" viewBox="0 0 1000 610" role="img" aria-labelledby="chartTitle chartDesc"></svg></div>
+<p class="muted">Green candle = higher close; red = lower close. Volume and signed delta are separate panels. All bars and order-flow values are synthetic. Future bars are hidden. Times are fictional Central Time bar-close labels.</p>
+<div id="story" class="note"></div>
+<div class="stats" id="stats" aria-live="polite"></div>
+<h3>Displayed liquidity and observed events</h3><p id="liquidity"></p>
+<div class="scroll"><table><thead><tr><th>Bid contracts</th><th>Price</th><th>Offer contracts</th></tr></thead><tbody id="book"></tbody></table></div>
+<p class="muted">These are supplied checkpoint snapshots, not an animated order feed. Displayed size is not traded volume, a promise of execution, or evidence of participant identity. ES evidence provides context for the separate fictional MES fills.</p>
+<details><summary>Lab rules, risk assumptions, and fill model</summary><ul>
+<li>Practice account: $10,000. Modeled risk budget: $100 per trade. MES: $5 per point; fictional round-trip fee $1.50 per contract. Stop slippage allowance: 0.50 points per contract beyond the modeled entry fill.</li>
+<li>One trade maximum per attempt. At each checkpoint you can wait. The available entry depends on the revealed sequence and must pass the room and risk checks. Once that trade closes, continue observing; no re-entry or adding in this version.</li>
+<li>Every entry uses a displayed checkpoint bracket. You may hold that bracket or exit early at the next decision. Stops cannot be widened or removed. An entry decision is not a claim that a strategy has a proven edge.</li>
+<li>Checkpoint planning quote: bid is last close minus 0.25; ask is last close plus 0.25. Actual market fills are supplied at 0.50 points worse than the last close: higher for buys, lower for sells. The extra 0.25 relative to the quote is modeled execution slippage.</li>
+<li>Stops are modeled stop-market exits filled 0.25 points beyond the stop, adversely. Targets receive explicit full fills at their price. The paired exit is canceled after a full exit. Real touch-to-fill and OCO behavior are not guaranteed.</li>
+<li>For this synthetic exercise only, each rising bar follows open → low → high → close; each falling bar follows open → high → low → close. This scripted path resolves exit ordering. Real OHLC bars alone do not reveal intrabar event order.</li>
+<li>Trades still open at the exercise end are closed at a supplied market fill 0.50 points adverse to the final close. Slippage is included in actual fills, not deducted again as a separate planning cost.</li>
+<li>All volume is classified in this example: volume = ask-executed + bid-executed contracts; delta = ask-executed − bid-executed contracts. No number identifies the traders or guarantees the next move.</li>
+<li>Planning budgets and protective orders do not guarantee maximum losses. Timestamps and journals are browser-generated practice records, not tamper-proof certification records.</li>
+</ul></details>
+</section>
+<section class="card"><h2>Your position and orders</h2><div id="position" aria-live="polite"></div><div id="events"></div></section>
+<section class="card" id="decisionPanel">
+<h2 id="decisionTitle">Your decision</h2>
+<form id="decisionForm">
+<label for="interpretation">What best describes the evidence currently available?</label>
+<select id="interpretation" required><option value="">Choose an interpretation</option><option value="unresolved">Unresolved — no sustained advantage established yet</option><option value="absorption">Possible selling absorption — buying meets effective offers</option><option value="exhaustion">Possible buying exhaustion — initiating effort diminishes</option><option value="acceptance">Developing acceptance above resistance</option><option value="rejection">Developing rejection of higher prices</option></select>
+<label for="reason">What observations support your interpretation?</label><textarea id="reason" required maxlength="3000" placeholder="Refer to the visible price sequence, volume/delta, or supplied liquidity events. Keep facts separate from explanations."></textarea>
+<label for="alternative">What alternative remains possible?</label><textarea id="alternative" required maxlength="3000" placeholder="Explain another plausible continuation, such as a breakthrough, rejection, or balance."></textarea>
+<label for="invalidation">What subsequent behavior would change your interpretation?</label><textarea id="invalidation" required maxlength="3000" placeholder="Identify observable price behavior around a reference area. Avoid simply saying ‘if I am wrong’."></textarea>
+<label for="action">What will you do now?</label><select id="action"></select>
+<div id="entryFields" hidden><div class="grid"><div><label for="quantity">MES contracts</label><input id="quantity" type="number" min="1" max="100" step="1" value="1"></div><div><label for="setup">Does the proposed entry meet your stated practice setup?</label><select id="setup"><option value="">Select</option><option value="yes">Yes — explain the qualifying condition below</option><option value="no">No / not established</option></select></div></div><div id="risk" class="note" aria-live="polite"></div></div>
+<label for="actionReason">Why does the action fit your plan and risk limits?</label><textarea id="actionReason" required maxlength="3000" placeholder="If entering, describe the setup and why the bracket makes sense. If waiting, say what you need next. If managing, refer to the existing plan."></textarea>
+<p id="error" class="error" role="alert"></p><button id="lock" type="submit">Lock decision &amp; reveal next three bars</button>
+</form></section>
+<section class="card" id="debrief" hidden><h2 id="debriefTitle" tabindex="-1">Review the sweep</h2><div id="result"></div><div id="feedback"></div>
+<form id="reflectionForm"><label for="reflection">What would you repeat or improve, without rewriting your earlier decisions?</label><textarea id="reflection" required maxlength="3000"></textarea><p class="error" id="reflectionError" role="alert"></p><button type="submit">Complete practice journal</button></form>
+<div id="exports" hidden><p>Practice complete. Save your journal before leaving. Written reasoning still needs instructor review; this is not certification.</p><button id="download" type="button">Download journal (.json)</button><button id="print" type="button" class="secondary">Print / save PDF</button></div></section>
+<section class="card" id="journalPanel" hidden><h2>Your locked decisions</h2><div id="journal"></div></section>
+<footer class="muted">The Trading Grandmaster · Britton Brown · Warden Grandmaster Academy<br>Judge the decision using the evidence available when it was made.</footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n),px=n=>n.toFixed(2);
+// [open, high, low, close, ask-executed contracts, bid-executed contracts]
+// Both paths begin with the same nine completed bars.
+const opening = [
+  [5012,5014,5011,5013,200,120],[5013,5015,5012,5014,240,150],
+  [5014,5016,5013,5015,130,200],[5015,5017,5014,5016,300,180],
+  [5016,5018,5015,5017,350,210],[5017,5018,5016,5017.5,200,260],
+  [5017.5,5019,5017,5018.5,400,240],[5018.5,5020,5018,5019.75,450,300],
+  [5019.75,5024,5019,5019.5,1100,650]
+];
+const paths = {
+  rejection: {
+    bars: [
+      [5019.5,5019.75,5016,5017,320,800],[5017,5019.25,5016.75,5019,560,310],
+      [5019,5020.5,5018.75,5019.25,800,490],[5019.25,5019.5,5018.5,5018.5,280,810],
+      [5018.5,5019.25,5018.25,5019,410,290],[5019,5019.25,5018.25,5018.5,220,540],
+      [5018.5,5019,5016.25,5016.5,260,820],[5016.5,5017,5014,5014.5,350,980],
+      [5014.5,5016,5013.75,5015,410,490]
+    ],
+    scenes: [
+      {count:12,text:'Sellers reached 5,016.00. A separate rally reached 5,020.50 and closed back below 5,020.00. The retest low is 5,018.75. The plan still requires a later break of that low.', liquidity:'Offers are displayed near the prior high. The bar shows a failed reclaim under this exercise’s rules. Participant identities and stop activity remain unknown.',bids:[[5019,72],[5018.75,95]],asks:[[5019.5,55],[5020,120]],expected:['rejection','unresolved']},
+      {count:15,text:'Sellers traded below the retest low at 5,018.75. A small recovery stayed below 5,020.00 and the latest close is 5,018.50. The first mapped downside obstacle for this case is 5,016.00.',liquidity:'The earlier reaction low is 5,016.00. For the execution exercise, the short must leave at least as much room to that low as its stop distance. Check the quote and modeled fill before deciding.',bids:[[5018.25,62],[5018,98]],asks:[[5018.75,45],[5019,100]],expected:['rejection'],side:'short',stop:5020.75,target:5016}
+    ],
+    outcome:'Sellers returned to the earlier reaction low at 5,016.00 and traded through it. Review what the failed reclaim and follow-through supported before this outcome.',
+    feedback:['The separate reclaim failed at 5,020.50, but sellers had yet to break the retest low at checkpoint 2.','At checkpoint 3 the retest low broke. The modeled short fill at 5,018.00 leaves 2.00 points to 5,016.00 against 2.75 to the stop, so the room rule calls for waiting even though price later reached the obstacle.']
+  },
+  acceptance: {
+    bars: [
+      [5019.5,5022,5018.75,5022,850,510],[5022,5022.5,5020.5,5021,400,580],
+      [5021,5023.5,5020.75,5023,760,390],[5023,5025,5022.75,5024.75,890,460],
+      [5024.75,5025.5,5024,5025.25,740,430],[5025.25,5025.75,5024.5,5025,610,510],
+      [5025,5028,5024.75,5027,840,390],[5027,5031,5026.5,5030,980,450],
+      [5030,5032.5,5029,5031,920,560]
+    ],
+    scenes: [
+      {count:12,text:'Buyers reclaimed 5,020.00 and the pullback held at 5,020.50. Price has yet to exceed the sweep high at 5,024.00.',liquidity:'The held pullback supports developing acceptance. The practice continuation plan still requires a later trade above the sweep high.',bids:[[5022.75,90],[5022.5,110]],asks:[[5023.25,55],[5024,85]],expected:['acceptance','unresolved']},
+      {count:15,text:'Buyers extended above 5,024.00 after holding the pullback. The latest close is 5,025.00. The first mapped upside obstacle for this case is 5,032.00.',liquidity:'The long practice setup permits an entry if its modeled fill leaves enough room to 5,032.00 relative to the stop beneath the held pullback.',bids:[[5024.75,75],[5024.5,115]],asks:[[5025.25,60],[5025.5,95]],expected:['acceptance'],side:'long',stop:5020.25,target:5032}
+    ],
+    outcome:'Buyers extended to the 5,032.00 reference. Review how the reclaim, held pullback, and extension changed the evidence before the final move.',
+    feedback:['The prior high was reclaimed and the pullback held at 5,020.50. The continuation trigger remained pending at checkpoint 2.','The extension beyond 5,024.00 completed the continuation sequence. The modeled long fill at 5,025.50 leaves 6.50 points of room against 5.25 points to the stop. Waiting earlier preserved this later choice.']
+  }
+};
+const pathName = Math.random() < 0.5 ? 'rejection' : 'acceptance';
+const path = paths[pathName];
+const bars = [...opening, ...path.bars];
+const scenes = [{
+  count:9,
+  text:'ES trades inside a fictional hourly range from 5,000 to 5,040. The prior day’s high at 5,020 was swept to 5,024 and the last bar closed at 5,019.50. A separate reclaim test and follow-through are still pending.',
+  liquidity:'This snapshot shows displayed bids and offers after the sweep. The candles establish the crossing and the return below the high. Stop activity remains a hypothesis.',
+  bids:[[5019.25,80],[5019,110]],asks:[[5019.75,55],[5020,105]],expected:['unresolved']
+}, ...path.scenes];
+let step=0,visible=9,trade=null,finished=false,complete=false;
+const journal={lab:'Warden Lab 006',version:'1.0',startedAt:new Date().toISOString(),records:[],fills:[]};
+function addText(parent,text,tag='p'){const e=document.createElement(tag);e.textContent=text;parent.appendChild(e);return e;}
+function log(title,data){const r={title,at:new Date().toISOString(),...data};journal.records.push(r);$('journalPanel').hidden=false;const item=document.createElement('div');item.className='entry';addText(item,title+' · '+r.at,'h3');addText(item,Object.entries(data).map(([k,v])=>k+': '+(typeof v==='object'?JSON.stringify(v):v)).join('\n'));$('journal').appendChild(item);}
+function estimate(side,qty){const s=scenes[step],last=bars[s.count-1][3],entry=last+(side==='long'?.5:-.5),{stop,target}=s,distance=side==='long'?entry-stop:stop-entry;const per=distance*5+1.5+.5*5;return{side,entry,stop,target,per,risk:per*qty,max:Math.floor(100/per),grossReward:Math.abs(target-entry)*5*qty};}
+function riskUI(){const side=$('action').value,entering=!finished&&!trade&&(side==='long'||side==='short');$('entryFields').hidden=!entering;$('quantity').disabled=!entering;$('setup').disabled=!entering;if(!entering)return;const q=Number($('quantity').value),e=estimate(side,Number.isFinite(q)?q:0);$('risk').textContent='Modeled '+side+' fill '+px(e.entry)+' · stop '+px(e.stop)+' · target '+px(e.target)+'. Modeled risk '+money(e.risk)+' including fees and 0.50-point stop slippage allowance; maximum '+e.max+' MES within $100. Gross reward '+money(e.grossReward)+'. Actual fills can differ. This supplied bracket is an exercise constraint, not a universal stop-placement rule.';}
+function drawChart(){
+const svg=$('chart'),ns='http://www.w3.org/2000/svg';svg.replaceChildren();const x=i=>42+i*39,y=p=>32+(5034-p)*9;
+function draw(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;svg.appendChild(n);return n;}
+draw('title',{id:'chartTitle'},'The Liquidity Sweep — synthetic five-minute candles');draw('desc',{id:'chartDesc'},visible+' bars revealed. Latest close '+bars[visible-1][3]+'. Prior day high 5020. Future bars hidden.');draw('rect',{width:1000,height:610,fill:'#0b1423'});
+for(let p=5010;p<=5034;p+=4){draw('line',{x1:22,x2:750,y1:y(p),y2:y(p),stroke:'#263950'});draw('text',{x:760,y:y(p)+5,fill:'#b6c3d5','font-size':14},px(p));}
+draw('line',{x1:22,x2:750,y1:y(5020),y2:y(5020),stroke:'#d4af37','stroke-dasharray':'6 5'});draw('text',{x:840,y:y(5020)+5,fill:'#d4af37','font-size':13},'PRIOR DAY HIGH');
+if(visible<bars.length){const edge=x(visible-1)+20;draw('rect',{x:edge,y:32,width:750-edge,height:530,fill:'#1b304c',opacity:.55});draw('text',{x:edge+10,y:54,fill:'#b6c3d5','font-size':13},'NEXT BARS HIDDEN');}
+draw('text',{x:22,y:21,fill:'#fff','font-size':15},'LATEST CLOSE '+px(bars[visible-1][3]));
+draw('text',{x:22,y:365,fill:'#b6c3d5','font-size':13},'VOLUME · 0–2,000 CONTRACTS');draw('text',{x:22,y:465,fill:'#b6c3d5','font-size':13},'BID-ASK DELTA · ±1,000 CONTRACTS');draw('line',{x1:22,x2:750,y1:516,y2:516,stroke:'#71829a'});
+bars.slice(0,visible).forEach(([o,h,l,c,a,b],i)=>{const color=c>=o?'#4bd4af':'#f18b94';draw('line',{x1:x(i),x2:x(i),y1:y(h),y2:y(l),stroke:color,'stroke-width':2});const candle=draw('rect',{x:x(i)-10,y:Math.min(y(o),y(c)),width:20,height:Math.max(2,Math.abs(y(o)-y(c))),fill:color});const title=document.createElementNS(ns,'title');title.textContent='Bar '+(i+1)+' O '+o+' H '+h+' L '+l+' C '+c+' Volume '+(a+b)+' Delta '+(a-b);candle.appendChild(title);draw('rect',{x:x(i)-10,y:440-(a+b)/2000*60,width:20,height:(a+b)/2000*60,fill:'#7abaff'});const d=a-b,dh=Math.abs(d)/1000*34;draw('rect',{x:x(i)-10,y:d>=0?516-dh:516,width:20,height:dh,fill:d>=0?'#4bd4af':'#f18b94'});if(i%3===0||i===visible-1){const mins=30+i*5;draw('text',{x:x(i),y:588,fill:'#b6c3d5','font-size':12,'text-anchor':'middle'},String(8+Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0'));}});
+if(trade){[['STOP',trade.stop,'#ee9198'],['TARGET',trade.target,'#d4af37']].forEach(([t,p,c])=>{draw('line',{x1:22,x2:750,y1:y(p),y2:y(p),stroke:c,'stroke-dasharray':'3 6'});draw('text',{x:840,y:y(p)+5,fill:c,'font-size':13},t+' '+px(p));});}
+journal.fills.forEach(f=>{if(f.bar>visible)return;const i=Math.min(17,f.bar-.5);draw('circle',{cx:x(i),cy:y(f.price),r:5,fill:f.kind==='entry'?'#7abaff':'#f7d76a',stroke:'#fff'});draw('text',{x:x(i)-6,y:y(f.price)-10,fill:f.kind==='entry'?'#7abaff':'#f7d76a','font-size':12,'text-anchor':'end'},f.label+' '+px(f.price));});
+}
+function showPosition(){
+$('position').replaceChildren();if(!trade){addText($('position'),'Flat. No position and no working orders. Waiting leaves the next checkpoint open for a fresh entry.');return;}
+if(trade.exit!==undefined){addText($('position'),'Flat after '+trade.exitReason+'. Entry '+px(trade.entry)+' → exit '+px(trade.exit)+' · gross '+money(trade.gross)+' · fees '+money(trade.fees)+' · net '+money(trade.net)+'. Paired exit canceled. One-trade limit reached.');return;}
+const grossRisk=Math.abs(trade.entry-trade.stop)*5*trade.qty;addText($('position'),trade.qty+' MES '+trade.side+' at actual fill '+px(trade.entry)+'. Stop-market '+px(trade.stop)+' and target '+px(trade.target)+' accepted and working in this model. Fill-to-stop gross exposure '+money(grossRisk)+'; '+money(grossRisk+1.5*trade.qty)+' including stated fees, before exit slippage. No adding or widening.');}
+function render(){const s=scenes[step];$('progress').textContent='Checkpoint '+(step+1)+' of 3 · '+visible+' bars visible';$('story').textContent=s.text;$('liquidity').textContent=s.liquidity;$('book').replaceChildren();[...s.asks.map(([p,q])=>[p,'—',q]),...s.bids.map(([p,q])=>[p,q,'—'])].sort((a,b)=>b[0]-a[0]).forEach(([p,b,a])=>{const row=document.createElement('tr');[b,px(p),a].forEach(v=>addText(row,String(v),'td'));$('book').appendChild(row);});
+const recent=bars.slice(visible-3,visible),vol=recent.reduce((n,b)=>n+b[4]+b[5],0),delta=recent.reduce((n,b)=>n+b[4]-b[5],0);$('stats').replaceChildren();['Last 3 bars: volume '+vol,'Last 3 bars: delta '+(delta>=0?'+':'')+delta,'Planning bid '+px(bars[visible-1][3]-.25)+' / ask '+px(bars[visible-1][3]+.25)].forEach(t=>addText($('stats'),t,'span'));
+$('action').replaceChildren();const choices=!trade?[['wait','Wait — assess the next reveal'], ...(s.side ? [[s.side, s.side === 'long' ? 'Evaluate MES long' : 'Evaluate MES short']] : [])]:trade.exit!==undefined?[['observe','Remain flat — continue observing']]:[['hold','Hold the existing stop and target'],['exit','Exit the entire position now']];choices.forEach(([v,t])=>$('action').appendChild(new Option(t,v)));$('interpretation').value='';['reason','alternative','invalidation','actionReason'].forEach(id=>$(id).value='');$('error').textContent='';showPosition();riskUI();drawChart();}
+function closeTrade(price,reason,bar){if(!trade||trade.exit!==undefined)return;trade.exit=price;trade.exitReason=reason;trade.gross=(price-trade.entry)*(trade.side==='long'?1:-1)*5*trade.qty;trade.fees=trade.qty*1.5;trade.net=trade.gross-trade.fees;journal.fills.push({kind:'exit',label:reason,price,bar,at:new Date().toISOString()});addText($('events'),reason+' filled at '+px(price)+' · net '+money(trade.net));}
+function advance(to){for(let i=visible;i<to;i++){if(!trade||trade.exit!==undefined)continue;const[o,h,l,c]=bars[i],path=c>=o?[o,l,h,c]:[o,h,l,c];for(let j=1;j<path.length;j++){const lo=Math.min(path[j-1],path[j]),hi=Math.max(path[j-1],path[j]);const hits=[{p:trade.stop,k:'Stop'},{p:trade.target,k:'Target'}].filter(v=>v.p>=lo&&v.p<=hi).sort((a,b)=>Math.abs(a.p-path[j-1])-Math.abs(b.p-path[j-1]));if(hits.length){const hit=hits[0],fill=hit.k==='Target'?hit.p:hit.p+(trade.side==='long'?-.25:.25);closeTrade(fill,hit.k,i+1);break;}}}visible=to;}
+function submitDecision(event){event.preventDefault();if(finished)return;const interpretation=$('interpretation').value,action=$('action').value;const text={reason:$('reason').value.trim(),alternative:$('alternative').value.trim(),invalidation:$('invalidation').value.trim(),actionReason:$('actionReason').value.trim()};
+if(!interpretation||Object.values(text).some(t=>t.length<20)){$('error').textContent='Choose an interpretation and write at least 20 characters in each reasoning field.';return;}
+let entryPlan=null;if(action==='long'||action==='short'){const qty=Number($('quantity').value);if(!Number.isInteger(qty)||qty<1||qty>100){$('error').textContent='Use a positive whole quantity of MES contracts.';return;}if(action!==scenes[step].side){$('error').textContent='The practice setup is still pending.';return;}entryPlan=estimate(action,qty);if(entryPlan.grossReward<Math.abs(entryPlan.entry-entryPlan.stop)*5*qty){$('error').textContent='This entry has less room to the first obstacle than to the stop. Choose Wait.';return;}if(entryPlan.risk>100){$('error').textContent='The modeled entry exceeds $100. Reduce quantity or wait.';return;}if($('setup').value!=='yes'){$('error').textContent='Enter only if your stated setup qualifies. Otherwise choose Wait.';return;}}
+log('Checkpoint '+(step+1),{visibleBars:visible,lastClose:bars[visible-1][3],interpretation,action,...text,entryPlan});
+if(entryPlan){const last=bars[visible-1][3];trade={side:action,qty:Number($('quantity').value),entry:last+(action==='long'?.5:-.5),stop:entryPlan.stop,target:entryPlan.target,plannedRisk:entryPlan.risk,checkpoint:step+1};journal.fills.push({kind:'entry',label:action==='long'?'BUY':'SELL',price:trade.entry,bar:visible,at:new Date().toISOString()});}
+else if(action==='exit'&&trade&&trade.exit===undefined){closeTrade(bars[visible-1][3]+(trade.side==='long'?-.5:.5),'Early exit',visible);}
+advance(visible+3);if(step<2){step++;render();}else{finished=true;if(trade&&trade.exit===undefined)closeTrade(bars[17][3]+(trade.side==='long'?-.5:.5),'End-of-exercise exit',18);finish();}$('chartHeading').focus({preventScroll:true});$('chartHeading').scrollIntoView({block:'start',behavior:'smooth'});}
+function finish(){
+$('decisionPanel').hidden=true;$('debrief').hidden=false;$('progress').textContent='Outcome revealed · 18 bars visible';$('story').textContent=path.outcome;$('liquidity').textContent='The final reveal supplies candles and classified transactions only; no later DOM snapshot is provided.';$('book').replaceChildren();$('stats').replaceChildren();const last=bars.slice(15),vol=last.reduce((n,b)=>n+b[4]+b[5],0),delta=last.reduce((n,b)=>n+b[4]-b[5],0);['Final 3 bars: volume '+vol,'Final 3 bars: delta '+delta].forEach(t=>addText($('stats'),t,'span'));showPosition();drawChart();
+const decisions=journal.records.filter(r=>r.title.startsWith('Checkpoint')),matches=decisions.filter((r,i)=>scenes[i].expected.includes(r.interpretation)).length;
+addText($('result'),trade?'Trade net result: '+money(trade.net)+'. Actual fills include the modeled execution differences; the planning allowance is not deducted again.':'You remained flat. Trade P/L and fees: $0.');
+addText($('feedback'),'Interpretation alignment: '+matches+' of 3 matched the supplied teaching key. This is a limited classification check, not an overall grade. Other defensible interpretations require review of the written evidence.');
+['Checkpoint 1: Price swept the prior day’s high and closed below it. The hourly high remained untested. Wait for a separate response and follow-through.',...path.feedback,'Review each choice against the information available at that checkpoint. A later move does not change the entry or risk conditions you faced at the time.'].forEach(t=>addText($('feedback'),t));journal.result={path:pathName,trade,interpretationAlignment:matches,outOf:3};}
+$('decisionForm').addEventListener('submit',submitDecision);$('action').addEventListener('change',riskUI);$('quantity').addEventListener('input',riskUI);
+$('reflectionForm').addEventListener('submit',event=>{event.preventDefault();if(complete||!finished)return;const reflection=$('reflection').value.trim();if(reflection.length<20){$('reflectionError').textContent='Write at least 20 characters for the final reflection.';return;}log('Post-outcome reflection',{reflection});journal.completedAt=new Date().toISOString();complete=true;$('reflectionForm').hidden=true;$('exports').hidden=false;});
+$('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(journal,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='warden-lab-006-'+journal.startedAt.replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});$('print').addEventListener('click',()=>window.print());render();
+</script>
+</body>
+</html>
