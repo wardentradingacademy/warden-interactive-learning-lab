@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warden Drawdown Explorer</title>
+<style>
+:root { color-scheme: dark; font-family: Arial, sans-serif; color: #e8edf5; background: #0b1423; }
+* { box-sizing: border-box; }
+body { margin: 0; line-height: 1.65; }
+main { max-width: 1050px; margin: auto; padding: 24px 18px 50px; }
+header, section { background: #10213b; border: 1px solid #35465f; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+header { border-top: 3px solid #d4af37; }
+h1 { font-size: 30px; line-height: 1.25; margin: 12px 0; }
+h2 { color: #d4af37; font-size: 22px; margin-top: 0; }
+p { margin: 10px 0; }
+.kicker { color: #d4af37; letter-spacing: 2px; font-size: 12px; font-weight: bold; }
+.muted { color: #b6c3d5; font-size: 14px; }
+.controls, .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+label { display: block; font-weight: bold; margin-bottom: 10px; }
+output { color: #f4d269; display: block; font-size: 23px; margin-top: 8px; }
+input[type=range] { width: 100%; accent-color: #d4af37; cursor: pointer; }
+button { background: #d4af37; color: #10213b; border: 0; border-radius: 6px; padding: 11px 15px; font: bold 15px Arial; cursor: pointer; margin: 8px 8px 0 0; }
+button.secondary { color: #e8edf5; background: #263c59; border: 1px solid #71829a; }
+:focus-visible { outline: 3px solid #f4d269; outline-offset: 4px; }
+.metric { padding: 17px; background: #0b1423; border-radius: 8px; }
+.metric strong { display: block; color: #ffffff; font-size: 26px; }
+.gold { color: #d4af37; }
+.blue { color: #7abaff; }
+.chart-wrap { overflow-x: auto; }
+svg { display: block; width: 100%; min-width: 580px; height: auto; }
+.note { border-left: 4px solid #d4af37; background: #1b304c; padding: 16px 20px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid #35465f; }
+@media (max-width: 600px) { main { padding: 14px 10px; } header, section { padding: 18px; } h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="kicker">WARDEN GRANDMASTER ACADEMY · CHAPTER 7</div>
+<h1>The Drawdown Explorer</h1>
+<p>Adjust the exposure. Watch what remains after a losing streak.</p>
+<p class="muted">Lesson 4 companion · Fictional mathematical illustration</p>
+</header>
+<section aria-labelledby="control-title">
+<h2 id="control-title">Change one assumption at a time</h2>
+<div class="controls">
+<div><label for="account">Starting account<output id="account-label" for="account"></output></label><input id="account" type="range" min="1000" max="100000" step="1000" value="50000"></div>
+<div><label for="risk">Risk per trade<output id="risk-label" for="risk"></output></label><input id="risk" type="range" min="0.25" max="10" step="0.25" value="1"></div>
+<div><label for="losses">Consecutive losses<output id="losses-label" for="losses"></output></label><input id="losses" type="range" min="0" max="20" step="1" value="5"></div>
+</div>
+<p class="muted">Risk is a percentage of the remaining equity before each trade. Every loss equals that trade’s planned risk.</p>
+<button id="compare" type="button">Try 10% risk and 5 losses</button>
+<button id="reset" type="button" class="secondary">Reset to 1% and 5 losses</button>
+</section>
+<section aria-labelledby="results-title">
+<h2 id="results-title">Your selected risk</h2>
+<div class="cards" id="results" aria-live="polite" aria-atomic="true">
+<div class="metric">Remaining equity<strong id="balance"></strong></div>
+<div class="metric">Drawdown<strong id="drawdown"></strong><span id="dollars-lost" class="muted"></span></div>
+<div class="metric">Gain needed to recover<strong id="recovery"></strong><span class="muted">Measured from remaining equity</span></div>
+</div>
+<p id="risk-detail"></p>
+</section>
+<section aria-labelledby="chart-heading">
+<h2 id="chart-heading">The same losses, different exposure</h2>
+<p><span class="gold">● Selected risk</span> &nbsp; <span class="blue">● 1% reference</span></p>
+<div class="chart-wrap"><svg id="chart" viewBox="0 0 900 380" role="img" aria-labelledby="chart-title chart-description"></svg></div>
+<p class="muted">Both paths use the same starting equity and number of full planned losses. The 1% line is a comparison assumption. Position sizing in practice depends on the strategy, current limits, and execution conditions.</p>
+<div class="chart-wrap"><table><thead><tr><th>Measure</th><th>Selected risk</th><th>1% reference</th></tr></thead><tbody id="comparison"></tbody></table></div>
+</section>
+<section>
+<h2>Read the recovery calculation</h2>
+<p id="explanation" class="note"></p>
+<details><summary>Model assumptions and formulas</summary>
+<p>Remaining equity = starting equity × (1 − risk fraction)<sup>number of losses</sup>.</p>
+<p>Drawdown = (starting equity − remaining equity) ÷ starting equity.</p>
+<p>Required recovery gain = (starting equity ÷ remaining equity − 1) × 100%.</p>
+<p>The illustration assumes exact fractional sizing, a fixed percentage of remaining equity, full planned losses, and no deposits, withdrawals, fees, or slippage. Actual contract quantities require rounding, and actual losses can differ from planned losses.</p>
+</details>
+</section>
+<section>
+<h2>Before the next trade</h2>
+<p>Try a $50,000 account with five losses at 1%, then at 10%. Compare the remaining equity and required recovery. Next, lower risk and examine how much capital another five losses would leave under those assumptions.</p>
+<p>A recovery percentage measures the arithmetic needed to return to the starting balance. Use your trading plan to decide whether the next opportunity qualifies, what risk is currently permitted, and when to reduce exposure or stop for review.</p>
+<p class="muted">Return to the Academy lesson after exploring the controls. This page does not collect responses.</p>
+</section>
+<footer class="muted">The Trading Grandmaster · Britton Brown · Warden Grandmaster Academy</footer>
+</main>
+<script>
+'use strict';
+const accountInput = document.getElementById('account');
+const riskInput = document.getElementById('risk');
+const lossesInput = document.getElementById('losses');
+const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const percent = value => value.toFixed(2) + '%';
+
+function calculateDrawdown(start, riskFraction, losses) {
+  const equity = Array.from({ length: losses + 1 }, (_, index) => start * Math.pow(1 - riskFraction, index));
+  const balance = equity[equity.length - 1];
+  return {
+    equity,
+    balance,
+    loss: start - balance,
+    drawdown: (start - balance) / start * 100,
+    recovery: (start / balance - 1) * 100
+  };
+}
+
+function drawChart(start, selected, reference, losses) {
+  const svg = document.getElementById('chart');
+  const namespace = 'http://www.w3.org/2000/svg';
+  svg.replaceChildren();
+  function addElement(tag, attributes, text) {
+    const element = document.createElementNS(namespace, tag);
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+    if (text !== undefined) element.textContent = text;
+    svg.appendChild(element);
+  }
+  const x = index => 80 + index / Math.max(1, losses) * 730;
+  const y = equity => 310 - equity / start * 270;
+  addElement('title', { id: 'chart-title' }, 'Account equity through consecutive planned losses');
+  addElement('desc', { id: 'chart-description' }, 'After ' + losses + ' losses, selected-risk equity is ' + currency.format(selected.balance) + ', compared with ' + currency.format(reference.balance) + ' at 1% risk.');
+  addElement('rect', { width: 900, height: 380, fill: '#0b1423', rx: 8 });
+  for (let fraction = 0; fraction <= 1; fraction += 0.25) {
+    const height = y(start * fraction);
+    addElement('line', { x1: 80, x2: 810, y1: height, y2: height, stroke: '#35465f' });
+    addElement('text', { x: 70, y: height + 5, fill: '#b6c3d5', 'font-size': 13, 'text-anchor': 'end' }, Math.round(start * fraction).toLocaleString('en-US'));
+  }
+  for (let index = 0; index <= losses; index++) {
+    if (losses <= 10 || index % 2 === 0 || index === losses) {
+      addElement('text', { x: x(index), y: 335, fill: '#b6c3d5', 'font-size': 13, 'text-anchor': 'middle' }, String(index));
+    }
+  }
+  addElement('text', { x: 445, y: 366, fill: '#b6c3d5', 'font-size': 14, 'text-anchor': 'middle' }, 'Consecutive full planned losses');
+  for (const [series, color, dash] of [[reference, '#7abaff', '6 5'], [selected, '#d4af37', 'none']]) {
+    const points = series.equity.map((equity, index) => x(index) + ',' + y(equity)).join(' ');
+    addElement('polyline', { points, fill: 'none', stroke: color, 'stroke-width': 3, 'stroke-dasharray': dash });
+    addElement('circle', { cx: x(losses), cy: y(series.balance), r: 5, fill: color });
+  }
+}
+
+function update() {
+  const start = Number(accountInput.value);
+  const riskPercent = Number(riskInput.value);
+  const losses = Number(lossesInput.value);
+  const selected = calculateDrawdown(start, riskPercent / 100, losses);
+  const reference = calculateDrawdown(start, 0.01, losses);
+  document.getElementById('account-label').textContent = currency.format(start);
+  document.getElementById('risk-label').textContent = percent(riskPercent);
+  document.getElementById('losses-label').textContent = String(losses);
+  document.getElementById('balance').textContent = currency.format(selected.balance);
+  document.getElementById('drawdown').textContent = percent(selected.drawdown);
+  document.getElementById('dollars-lost').textContent = currency.format(selected.loss) + ' lost';
+  document.getElementById('recovery').textContent = percent(selected.recovery);
+  document.getElementById('risk-detail').textContent = 'First trade planned risk: ' + currency.format(start * riskPercent / 100) + '. At the remaining balance, the same percentage permits ' + currency.format(selected.balance * riskPercent / 100) + ' on the next trade under this model.';
+  document.getElementById('explanation').textContent = 'The account needs to regain ' + currency.format(selected.loss) + ' from a remaining balance of ' + currency.format(selected.balance) + '. Divide that loss by the remaining balance to get the required gain of ' + percent(selected.recovery) + '. The smaller balance changes the percentage needed to recover.';
+  const table = document.getElementById('comparison');
+  table.replaceChildren();
+  const rows = [
+    ['Risk per trade', percent(riskPercent), '1.00%'],
+    ['Remaining equity', currency.format(selected.balance), currency.format(reference.balance)],
+    ['Drawdown', percent(selected.drawdown), percent(reference.drawdown)],
+    ['Required recovery', percent(selected.recovery), percent(reference.recovery)]
+  ];
+  for (const values of rows) {
+    const row = document.createElement('tr');
+    values.forEach(value => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    table.appendChild(row);
+  }
+  drawChart(start, selected, reference, losses);
+}
+
+[accountInput, riskInput, lossesInput].forEach(input => input.addEventListener('input', update));
+document.getElementById('compare').addEventListener('click', () => {
+  riskInput.value = '10';
+  lossesInput.value = '5';
+  update();
+});
+document.getElementById('reset').addEventListener('click', () => {
+  accountInput.value = '50000';
+  riskInput.value = '1';
+  lossesInput.value = '5';
+  update();
+});
+update();
+</script>
+</body>
+</html>
