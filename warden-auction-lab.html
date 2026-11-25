@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warden Auction Lab • Effort Versus Result</title>
+<style>
+:root{color-scheme:dark;--bg:#091525;--panel:#11233b;--line:#334b65;--gold:#e3be54;--text:#eef3fa;--muted:#b9c8db;--green:#83e2bb;--red:#ffb2a5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1250px;margin:auto;padding:32px 24px 56px}header{border-top:3px solid var(--gold);padding:28px;background:linear-gradient(110deg,#152f4c,#102039);border-radius:12px;margin-bottom:24px}.eyebrow{text-transform:uppercase;color:var(--gold);font-size:12px;letter-spacing:2px;font-weight:750}h1{font-family:Georgia,serif;font-size:clamp(30px,4vw,48px);line-height:1.15;margin:14px 0}h2{font-size:23px;line-height:1.3;margin:0 0 14px}h3{font-size:18px;margin:0 0 8px}p{margin:0 0 14px}.muted,small{color:var(--muted)}small{font-size:14px}.tag{display:inline-block;padding:5px 10px;border:1px solid var(--line);border-radius:20px;font-size:13px;color:var(--muted);margin:3px 6px 0 0}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px}.layout{display:grid;grid-template-columns:minmax(300px,.85fr) minmax(0,1.3fr);gap:22px;align-items:start}.stack{display:grid;gap:22px}.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}button{font:inherit;color:var(--text);background:#1c3654;border:1px solid #526b85;border-radius:7px;min-height:44px;padding:9px 13px;cursor:pointer}button:hover{background:#284868}button[aria-pressed=true]{border-color:var(--gold);background:#3b351f;color:#ffe19a}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}.preset-grid button{text-align:left;font-size:14px}.preset-grid span{display:block;font-size:12px;color:var(--muted)}.control{border-top:1px solid var(--line);padding:14px 0 9px}.control label{font-weight:650;display:block;margin-bottom:7px}.control-line{display:flex;align-items:center;gap:14px}input[type=range]{flex:1;min-width:60px;accent-color:var(--gold);height:32px}input[type=number]{width:112px;padding:8px;background:#091a2b;color:var(--text);border:1px solid #667d94;border-radius:6px;font:inherit}textarea{display:block;width:100%;padding:12px;background:#091a2b;color:var(--text);border:1px solid #667d94;border-radius:6px;font:inherit;min-height:110px}.status{font-size:14px;min-height:48px;color:var(--gold);margin:6px 0}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:15px 12px;background:#0b1b2d;border:1px solid var(--line);border-radius:8px}.metric strong{font-size:24px;display:block;line-height:1.4}.metric span{font-size:13px;color:var(--muted)}.gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}.chart{display:block;width:100%;height:auto;margin:12px 0}svg text{font-family:system-ui,sans-serif;font-size:14px;fill:var(--muted)}.volbar{height:30px;display:flex;border-radius:5px;overflow:hidden;background:#263c55}.buy{background:var(--green);height:100%}.sell{background:var(--red);height:100%}.key{display:flex;justify-content:space-between;gap:12px;margin:8px 0 18px;font-size:14px}.note{border-left:3px solid var(--gold);padding:14px 17px;background:#0b1b2d;margin-top:18px}.quadrants{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quadrant{border:1px solid var(--line);border-radius:8px;padding:15px;color:var(--muted)}.quadrant.active{border:2px solid var(--gold);background:#293325;padding:14px}.quadrant h3{color:var(--text);font-size:16px}.quadrant p{font-size:14px;margin:0}.benchmark{font-size:14px;color:var(--muted);margin-top:14px}.wide{margin-top:24px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{padding:18px;border:1px solid var(--line);border-radius:8px}.step p{font-size:15px}.step h3{color:var(--gold)}details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}summary{cursor:pointer;font-weight:650;color:var(--gold);min-height:36px}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.primary{background:var(--gold);color:#0b1728;font-weight:750;border-color:var(--gold)}.primary:hover{background:#f4d579}.footer{margin-top:24px;font-size:14px;color:var(--muted)}.checkpoint{display:block;font-size:14px;margin-top:12px}input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);vertical-align:middle;margin-right:8px}@media(max-width:850px){.layout{grid-template-columns:1fr}.steps{grid-template-columns:1fr}}@media(max-width:500px){main{padding:16px 12px 36px}header,.panel{padding:18px}.metrics{grid-template-columns:1fr 1fr}.metric strong{font-size:21px}.quadrants{grid-template-columns:1fr}.control-line{gap:8px}input[type=number]{width:100px}.key{flex-direction:column;gap:3px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="eyebrow">Warden Grandmaster Academy • Chapter 12 • Lesson 10</div>
+<h1>Warden Auction Lab</h1>
+<p>Effort versus result. Change the participation. Change the candle. Study what each measurement can—and cannot—tell you.</p>
+<span class="tag">One hypothetical five-minute ES candle</span><span class="tag">Exploration • no trade signals</span>
+</header>
+<div class="layout">
+<section class="panel" aria-labelledby="controls-heading">
+<h2 id="controls-heading">Build the auction</h2>
+<p class="muted">Start with a comparison, then adjust the inputs. Presets are illustrative conditions, not historical trades.</p>
+<div class="preset-grid" id="presets">
+<button type="button" data-preset="highLarge">High effort · Large move<span>10,000 contracts · 10 points</span></button>
+<button type="button" data-preset="highSmall">High effort · Little move<span>12,000 contracts · 0.50 points</span></button>
+<button type="button" data-preset="lowLarge">Low effort · Large move<span>2,000 contracts · 10 points</span></button>
+<button type="button" data-preset="lowSmall">Low effort · Little move<span>2,000 contracts · 0.50 points</span></button>
+<button type="button" data-preset="disagree">Buying delta · Falling price<span>Positive delta · lower close</span></button>
+<button type="button" data-preset="flat">Zero-range auction<span>Volume trades · one price</span></button>
+</div>
+<div id="controls"></div>
+<p class="status" id="status" role="status" aria-live="polite">Change an input or select a preset.</p>
+<small>Open and close extend the high or low when necessary. High cannot move below the candle body; low cannot move above it. Prices use ES quarter-point increments.</small>
+<button type="button" id="reset" style="margin-top:18px;width:100%">Reset lab and clear notes</button>
+</section>
+<div class="stack">
+<section class="panel" aria-labelledby="chart-heading">
+<h2 id="chart-heading">The result: price movement</h2>
+<p class="muted" id="ohlc-line"></p>
+<svg class="chart" id="candle-chart" viewBox="0 0 620 360" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Adjustable ES candle</title><desc id="chart-desc"></desc><g id="chart-content"></g></svg>
+<div class="metrics">
+<div class="metric"><span>Signed close − open</span><strong id="displacement"></strong></div>
+<div class="metric"><span>Range: high − low</span><strong id="range"></strong></div>
+<div class="metric"><span>Directional efficiency</span><strong id="efficiency" class="gold"></strong></div>
+</div>
+<div class="note"><strong>Directional efficiency = |Close − Open| ÷ (High − Low)</strong><p style="margin:8px 0 0" id="efficiency-note"></p></div>
+<small>Body as a proportion of range. This measure contains no volume, does not show the intrabar path, and is not a win probability. The chart rescales to fit; use the labeled prices and point measurements when comparing presets.</small>
+</section>
+<section class="panel" aria-labelledby="volume-heading">
+<h2 id="volume-heading">The effort: executed volume</h2>
+<div class="metrics">
+<div class="metric"><span>Total volume</span><strong id="volume-total"></strong></div>
+<div class="metric"><span>Buy − sell delta</span><strong id="delta"></strong></div>
+<div class="metric"><span>Buying share</span><strong id="buy-share"></strong></div>
+</div>
+<p class="muted" style="margin:18px 0 8px">Volume scale: full track = 20,000 contracts</p>
+<div class="volbar" id="volume-bar" role="img"><div class="buy" id="buy-bar"></div><div class="sell" id="sell-bar"></div></div>
+<div class="key"><span class="green" id="buy-count"></span><span class="red" id="sell-count"></span></div>
+<p class="muted">For this simplified model, every contract is classified as aggressive buying or aggressive selling. Total volume = buy volume + sell volume. Every executed contract has both a buyer and a seller.</p>
+<div class="note" id="relationship"></div>
+</section>
+</div>
+</div>
+<section class="panel wide" aria-labelledby="map-heading">
+<h2 id="map-heading">Where does this example sit?</h2>
+<p class="muted">The highlighted condition compares total volume with absolute open-to-close displacement. It does not use delta sign or directional efficiency to choose a category.</p>
+<div class="quadrants">
+<div class="quadrant" id="q-highLarge"><h3>High effort · Large directional progress</h3><p>Investigate initiative and continuation. Does progress sustain through a meaningful boundary?</p></div>
+<div class="quadrant" id="q-highSmall"><h3>High effort · Little net progress</h3><p>Investigate opposing liquidity, balance, or absorption. Check price-level executions and the subsequent response.</p></div>
+<div class="quadrant" id="q-lowLarge"><h3>Low effort · Large directional progress</h3><p>Investigate thin liquidity or limited opposition. Modest volume can accompany a substantial move.</p></div>
+<div class="quadrant" id="q-lowSmall"><h3>Low effort · Little net progress</h3><p>Investigate inactivity, contraction, or balance. Compare with the session and time-of-day context.</p></div>
+</div>
+<p class="benchmark">Training benchmarks only: “high effort” means at least 5,000 contracts in this five-minute example; “large progress” means at least 4.00 points of absolute open-to-close displacement. These chosen cutoffs organize the exercise. They are not market standards or trading thresholds. A live comparison needs a relevant baseline.</p>
+</section>
+<section class="panel wide" aria-labelledby="practice-heading">
+<h2 id="practice-heading">Three comparisons to practice</h2>
+<p class="muted">Use the presets and controls above, then record what you observed. These are study prompts, not automatically graded decisions.</p>
+<div class="steps">
+<div class="step"><h3>Same candle, different effort</h3><p>Compare “High effort · Large move” with “Low effort · Large move.” What changes? What stays identical?</p><label for="note-1">Your observation</label><textarea id="note-1" placeholder="Compare volume, price displacement, and directional efficiency."></textarea><details><summary>Review the comparison</summary><p>The candle is identical: +10 points, a 12-point range, and 83.3% efficiency. Volume changes from 10,000 to 2,000. The efficiency formula contains no volume, so it cannot tell you how much participation produced the move.</p></details><label class="checkpoint"><input type="checkbox" id="review-1">I reviewed this comparison</label></div>
+<div class="step"><h3>Same effort, different shape</h3><p>Load “High effort · Large move.” Keep volume, open, and close fixed. Raise the high from 5,257 to 5,266. How does the efficiency reading change?</p><label for="note-2">Your observation</label><textarea id="note-2" placeholder="Separate body size, range, volume, and efficiency."></textarea><details><summary>Review the comparison</summary><p>Volume stays at 10,000 and displacement stays at +10 points. Range increases from 12 to 21 points, so efficiency falls from 83.3% to 47.6%. The effort–result category stays the same because this map uses volume and body displacement, not efficiency.</p></details><label class="checkpoint"><input type="checkbox" id="review-2">I reviewed this comparison</label></div>
+<div class="step"><h3>Same result, different aggression</h3><p>Load “Buying delta · Falling price.” Change the buying share from 70% to 30% without changing price or total volume. What can you establish?</p><label for="note-3">Your observation</label><textarea id="note-3" placeholder="Describe the change in delta and the limits of this model."></textarea><details><summary>Review the comparison</summary><p>Delta changes from +4,000 to −4,000. Price still falls 5 points and efficiency remains 71.4%. The first setting shows buying aggression without upward progress. Neither setting reveals participant identity, the intrabar sequence, or what price does next.</p></details><label class="checkpoint"><input type="checkbox" id="review-3">I reviewed this comparison</label></div>
+</div>
+<div class="actions"><button type="button" class="primary" id="download">Download my study record</button></div>
+<p id="record-status" role="status" aria-live="polite" class="muted" style="margin-top:12px"></p>
+<small>Your record includes the current inputs, measurements, notes, and review checkboxes. Notes remain only in this open page until downloaded. Reloading or resetting clears them. No LMS score or completion credit is submitted.</small>
+</section>
+<section class="panel wide">
+<h2>The Grandmaster’s question</h2>
+<p>Is the effort producing sustained progress at the location that matters?</p>
+<p class="muted">This lab lets you vary observations independently. It does not simulate a matching engine or infer resting liquidity, absorption, exhaustion, or the next candle. Those interpretations require context, transaction evidence, and subsequent price behavior.</p>
+</section>
+<p class="footer">Warden Grandmaster Academy • Lesson 12.10 • Educational exploration. The chapter’s final decision exercise is Warden Lab 012 — The Battle of Aggression.</p>
+</main>
+<script>
+'use strict';
+const PRESETS=Object.freeze({
+ highLarge:{o:5246,h:5257,l:5245,c:5256,v:10000,b:65},
+ highSmall:{o:5249,h:5250.25,l:5248.75,c:5249.5,v:12000,b:75},
+ lowLarge:{o:5246,h:5257,l:5245,c:5256,v:2000,b:65},
+ lowSmall:{o:5249,h:5250.25,l:5248.75,c:5249.5,v:2000,b:75},
+ disagree:{o:5251,h:5252,l:5245,c:5246,v:10000,b:70},
+ flat:{o:5250,h:5250,l:5250,c:5250,v:5000,b:50}
+});
+const FIELDS=[['o','Open',5230,5270,.25],['h','High',5230,5270,.25],['l','Low',5230,5270,.25],['c','Close',5230,5270,.25],['v','Total volume (contracts)',100,20000,100],['b','Aggressive buying share (%)',0,100,1]];
+function metrics(s){const buy=Math.round(s.v*s.b/100),sell=s.v-buy,body=Math.abs(s.c-s.o),range=s.h-s.l;return {buy,sell,delta:buy-sell,body,displacement:s.c-s.o,range,efficiency:range===0?null:body/range,category:(s.v>=5000?'high':'low')+(body>=4?'Large':'Small')};}
+function updateValue(s,key,value){const f=FIELDS.find(x=>x[0]===key);if(!f||!Number.isFinite(value))return {state:{...s},message:'Enter a valid number.'};const bounded=Math.max(f[2],Math.min(f[3],value)),rounded=Math.round(bounded/f[4])*f[4];const n={...s,[key]:rounded};let message='Inputs updated.';if(rounded!==value)message='Value adjusted to the allowed range and increment.';if(key==='o'||key==='c'){const hi=Math.max(n.o,n.c),lo=Math.min(n.o,n.c);if(n.h<hi||n.l>lo)message='High or low extended to include the new candle body.';n.h=Math.max(n.h,hi);n.l=Math.min(n.l,lo);}if(key==='h'&&n.h<Math.max(n.o,n.c)){n.h=Math.max(n.o,n.c);message='High must be at or above both open and close; it was kept at the body edge.';}if(key==='l'&&n.l>Math.min(n.o,n.c)){n.l=Math.min(n.o,n.c);message='Low must be at or below both open and close; it was kept at the body edge.';}return {state:n,message};}
+function recordText(s,notes,reviews){const m=metrics(s);return ['WARDEN AUCTION LAB — LESSON 12.10','Study record • hypothetical five-minute ES candle','Open: '+s.o.toFixed(2),'High: '+s.h.toFixed(2),'Low: '+s.l.toFixed(2),'Close: '+s.c.toFixed(2),'Total volume: '+s.v,'Aggressive buying share: '+s.b+'%','Aggressive buy volume: '+m.buy,'Aggressive sell volume: '+m.sell,'Delta: '+m.delta,'Signed displacement: '+m.displacement.toFixed(2)+' points','Range: '+m.range.toFixed(2)+' points','Directional efficiency: '+(m.efficiency===null?'Undefined (zero range)':(m.efficiency*100).toFixed(1)+'%'),'Illustrative category: '+m.category,'Benchmarks: volume >= 5,000; absolute displacement >= 4 points. These are exercise cutoffs, not trading rules.','',...notes.flatMap((n,i)=>['Comparison '+(i+1)+' — review checkbox: '+(reviews[i]?'checked':'not checked'),n.trim()||'(No note entered)','']),'Self-directed study; no automated grading, trade signals, fills, or LMS completion submission.'].join('\n');}
+let state={...PRESETS.highLarge};
+let selected='highLarge';
+const $=id=>document.getElementById(id), fmt=n=>n.toLocaleString('en-US'), price=n=>n.toFixed(2),signed=n=>(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
+$('controls').innerHTML=FIELDS.map(([k,label,min,max,step])=>'<div class="control"><label for="'+k+'-range">'+label+'</label><div class="control-line"><input type="range" id="'+k+'-range" min="'+min+'" max="'+max+'" step="'+step+'"><input type="number" id="'+k+'-number" aria-label="'+label+' numeric value" min="'+min+'" max="'+max+'" step="'+step+'"></div></div>').join('');
+function renderChart(){const s=state;const span=Math.max(10,s.h-s.l),pad=span*.2,min=s.l-pad,max=s.h+pad,y=p=>300-(p-min)/(max-min)*260,bodyTop=y(Math.max(s.o,s.c)),bodyBottom=y(Math.min(s.o,s.c)),color=s.c>s.o?'#83e2bb':s.c<s.o?'#ffb2a5':'#e3be54';let svg='';for(let i=0;i<=4;i++){const p=min+(max-min)*i/4,py=y(p);svg+='<line x1="30" x2="475" y1="'+py+'" y2="'+py+'" stroke="#334b65"/><text x="485" y="'+(py+5)+'">'+price(p)+'</text>';}
+svg+='<line x1="255" x2="255" y1="'+y(s.h)+'" y2="'+y(s.l)+'" stroke="'+color+'" stroke-width="3"/>';
+svg+=s.o===s.c?'<line x1="205" x2="305" y1="'+y(s.o)+'" y2="'+y(s.o)+'" stroke="'+color+'" stroke-width="3"/>':'<rect x="205" y="'+bodyTop+'" width="100" height="'+Math.max(1,bodyBottom-bodyTop)+'" rx="2" fill="'+color+'"/>';
+const labels=[['High',s.h],['Open',s.o],['Close',s.c],['Low',s.l]].map(([label,p])=>({label,p,y:y(p)})).sort((a,b)=>a.y-b.y);for(let i=1;i<labels.length;i++)labels[i].y=Math.max(labels[i].y,labels[i-1].y+25);if(labels[3].y>325){const shift=labels[3].y-325;labels.forEach(a=>a.y-=shift);}for(const a of labels){svg+='<path d="M 310 '+y(a.p)+' L 335 '+a.y+' L 345 '+a.y+'" stroke="#6f89a5" fill="none"/><text x="350" y="'+(a.y+5)+'" style="fill:#eef3fa">'+a.label+' '+price(a.p)+'</text>';}
+svg+='<text x="30" y="345">One five-minute candle • prices in ES points</text>';$('chart-content').innerHTML=svg;$('chart-desc').textContent='Open '+price(s.o)+', high '+price(s.h)+', low '+price(s.l)+', close '+price(s.c)+'. '+(s.h===s.l?'Zero range: all prices are equal.':s.o===s.c?'Doji: open equals close.':s.c>s.o?'Upward body.':'Downward body.');}
+function render(){const m=metrics(state);for(const [k] of FIELDS){$(k+'-range').value=state[k];$(k+'-number').value=['o','h','l','c'].includes(k)?price(state[k]):state[k];}document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===selected)));$('ohlc-line').textContent='O '+price(state.o)+'  ·  H '+price(state.h)+'  ·  L '+price(state.l)+'  ·  C '+price(state.c);$('displacement').textContent=(m.displacement>0?'+':m.displacement<0?'−':'')+price(Math.abs(m.displacement))+' pts';$('displacement').className=m.displacement>0?'green':m.displacement<0?'red':'gold';$('range').textContent=price(m.range)+' pts';$('efficiency').textContent=m.efficiency===null?'Undefined':(m.efficiency*100).toFixed(1)+'%';$('efficiency-note').textContent=m.efficiency===null?'High equals low, so the denominator is zero. Directional efficiency is undefined, not 0% or 100%.':price(m.body)+' ÷ '+price(m.range)+' = '+(m.efficiency*100).toFixed(1)+'%. '+(m.body===0?'Open equals close: zero net displacement, despite the intrabar range.':'This describes the candle’s geometry, regardless of the volume traded.');$('volume-total').textContent=fmt(state.v);$('delta').textContent=signed(m.delta);$('delta').className=m.delta>0?'green':m.delta<0?'red':'gold';$('buy-share').textContent=state.b+'%';$('buy-count').textContent='Aggressive buy: '+fmt(m.buy);$('sell-count').textContent='Aggressive sell: '+fmt(m.sell);$('buy-bar').style.width=(m.buy/20000*100)+'%';$('sell-bar').style.width=(m.sell/20000*100)+'%';$('volume-bar').setAttribute('aria-label','Aggressive buy volume '+m.buy+', aggressive sell volume '+m.sell+', total '+state.v+'. Full scale 20000 contracts.');let relation;if(m.displacement===0)relation='Price finishes where it opened. '+(m.delta===0?'Classified aggression is evenly balanced.':'Delta is '+(m.delta>0?'positive':'negative')+', but there is no net open-to-close progress.')+' The range still matters; zero net displacement does not establish inactivity.';else if(m.delta===0)relation='Price '+(m.displacement>0?'rises':'falls')+' despite balanced classified aggression. Equal buy and sell volumes do not require a flat candle.';else if(Math.sign(m.delta)===Math.sign(m.displacement))relation='The signs align: '+(m.delta>0?'positive delta accompanies an upward close.':'negative delta accompanies a downward close.')+' Alignment alone does not establish continuation.';else relation='The signs disagree: '+(m.delta>0?'net aggressive buying accompanies a lower close.':'net aggressive selling accompanies a higher close.')+' Investigate liquidity, timing, location, and subsequent price behavior; this model does not prove absorption.';$('relationship').textContent=relation;for(const k of ['highLarge','highSmall','lowLarge','lowSmall']){$('q-'+k).classList.toggle('active',k===m.category);$('q-'+k).setAttribute('aria-label',(k===m.category?'Current illustrative condition. ':'')+$('q-'+k).querySelector('h3').textContent);}renderChart();}
+for(const [k] of FIELDS){$(k+'-range').addEventListener('input',e=>change(k,Number(e.target.value)));const number=$(k+'-number');const commit=()=>{const value=number.value.trim()===''?NaN:Number(number.value);if(!Number.isFinite(value)||value!==state[k])change(k,value);};number.addEventListener('change',commit);number.addEventListener('blur',commit);number.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}});}
+function change(k,v){const r=updateValue(state,k,v);state=r.state;selected=null;$('status').textContent=r.message;render();}
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.preset;state={...PRESETS[selected]};$('status').textContent='Preset loaded: '+b.firstChild.textContent+'.';render();}));
+$('reset').addEventListener('click',()=>{state={...PRESETS.highLarge};selected='highLarge';for(let i=1;i<=3;i++){$('note-'+i).value='';$('review-'+i).checked=false;}document.querySelectorAll('details').forEach(d=>d.open=false);$('record-status').textContent='';$('status').textContent='Lab reset. Notes and review checkboxes cleared.';render();});
+$('download').addEventListener('click',()=>{const text=recordText(state,[1,2,3].map(i=>$('note-'+i).value),[1,2,3].map(i=>$('review-'+i).checked));const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='warden-auction-study-record.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);$('record-status').textContent='Study record download requested. Keep the downloaded text file to retain your notes.';});
+render();
+</script>
+</body>
+</html>
