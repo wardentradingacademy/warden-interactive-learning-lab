@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warden Lab 012 — The Battle of Aggression</title>
+<style>
+:root{color-scheme:dark;--bg:#071322;--navy:#10213b;--card:#142a45;--gold:#d4af37;--text:#e8edf5;--muted:#b8c7da;--line:#3f526e;--green:#7cd8b0;--red:#ffb1a0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 Arial,sans-serif}main{max-width:1160px;margin:auto;padding:30px 22px 60px}header{border-top:4px solid var(--gold);padding:30px;background:var(--navy);border-radius:12px;margin-bottom:22px}.kicker{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold)}h1{font-size:clamp(30px,5vw,46px);line-height:1.14;margin:13px 0}h2{font-size:25px;color:var(--gold);line-height:1.3}h3{font-size:18px;margin:20px 0 8px}p{margin:12px 0}.muted,small{color:var(--muted)}.panel{background:var(--navy);padding:25px;border:1px solid var(--line);border-radius:10px;margin:20px 0}.note{border-left:3px solid var(--gold);padding:14px 18px;background:#1b314c}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.stat{border:1px solid var(--line);padding:16px;border-radius:8px;background:var(--card)}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:25px;color:white;display:block}.two{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}.fact{padding:10px 0;border-bottom:1px solid var(--line)}.fact b{color:var(--gold)}.pill{display:inline-block;border:1px solid var(--line);padding:4px 10px;font-size:12px;border-radius:20px;color:var(--muted);margin:6px 6px 0 0}button{cursor:pointer;border:1px solid var(--gold);border-radius:6px;padding:13px 19px;background:var(--gold);color:#10213b;font:700 15px Arial;margin:8px 8px 8px 0}button.secondary{background:transparent;color:var(--text);border-color:#71839a}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #8cc9ff;outline-offset:4px}.choice{display:block;border:1px solid var(--line);border-radius:8px;margin:10px 0;padding:14px;cursor:pointer}.choice:has(input:checked){border-color:var(--gold);background:#203852}input[type=radio]{margin-right:10px;accent-color:var(--gold)}input[type=number],select,textarea{background:#08182a;border:1px solid #70839f;border-radius:5px;color:white;font:16px Arial;padding:11px;width:100%}input[type=number]{max-width:130px}textarea{min-height:95px;line-height:1.5}label.field{display:block;font-weight:700;margin:18px 0 8px}fieldset{border:0;padding:0;margin:18px 0}legend{font-weight:700}summary{cursor:pointer;color:var(--gold);font-weight:700}details li{margin:8px 0}.hidden{display:none!important}.error{color:var(--red);min-height:26px}.badge{display:inline-block;padding:5px 12px;border-radius:5px;font-weight:700;background:#243c50}.pass{color:var(--green)}.fail{color:var(--red)}svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#0a1b2d}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:720px}td,th{text-align:left;padding:13px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--gold);font-size:13px}td{font-size:14px}progress{width:100%;accent-color:var(--gold);height:8px}#reveal{border-top:3px solid var(--gold)}.journal-entry{border-bottom:1px solid var(--line);padding:15px 0}footer{font-size:13px;color:var(--muted);margin-top:30px}.accountline{border-top:1px solid var(--line);padding-top:14px;margin-top:20px}.timeline{display:flex;gap:7px;margin:14px 0}.dot{height:6px;flex:1;background:#30425e}.dot.done{background:var(--gold)}@media(max-width:800px){.two{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header,.panel{padding:20px}main{padding:20px 12px}.stat strong{font-size:22px}}
+
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chartbox{min-width:0}.chartbox:last-child{grid-column:1/-1}.chartbox h3{color:var(--gold)}.chartbox p{font-size:14px}.kicker{font-size:12px}.pill{font-size:13px}.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d4af37 50%),linear-gradient(135deg,#d4af37 50%,transparent 50%);background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:35px}input[type=number]{max-width:none} .ledger{white-space:pre-wrap;font:14px/1.7 Arial} @media(max-width:700px){.charts,.fields{grid-template-columns:1fr}.chartbox:last-child{grid-column:auto}}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.maprefs{display:flex;flex-wrap:wrap;gap:10px}.maprefs span{padding:8px 12px;background:#142a45;border:1px solid #475569;border-radius:6px;font-size:14px}.progress-text{font-size:14px;color:var(--muted)}.case-note{font-size:14px;color:var(--muted)}#chart svg{min-width:650px}.chart-scroll{overflow-x:auto}.two .panel{margin:0}.fields input{width:100%}.kicker{font-size:12px}.stat strong{font-size:23px}.legend-row{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}.legend-row span{border-left:4px solid var(--gold);padding-left:9px} @media(max-width:700px){.plan-grid{grid-template-columns:1fr}.stat strong{font-size:19px}}
+[hidden]{display:none!important}
+.scroll svg{min-width:620px}
+.score{font-weight:bold}
+#journal{white-space:pre-wrap;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="kicker">WARDEN GRANDMASTER ACADEMY · CHAPTER 12 · WARDEN LAB 012</p>
+<h1>The Battle of Aggression</h1>
+<p>Read the effort, measure the result, and decide what the auction still needs to show.</p>
+</header>
+<section id="brief" class="panel" aria-labelledby="brief-title">
+<h2 id="brief-title">Prepare for the breakout</h2>
+<p>Three fictional ES cases start with the same five-minute auction. The prior swing high is <strong>5,240.00</strong>. The morning has been rotational, with a range low at <strong>5,234.00</strong>. A close outside the range is the first test of whether the auction can expand.</p>
+<p>Study only the visible bars. At each checkpoint, classify the evidence, choose an action, and explain what you would need to see next. Each decision locks before another bar appears. The three cases play in shuffled order.</p>
+<form id="preparation">
+<label class="field" for="plan">What would distinguish a breakout that holds from one that fails?</label>
+<textarea id="plan" required maxlength="1500"></textarea>
+<button type="submit">Lock preparation and start replay</button>
+<p class="error" id="prep-error" role="alert"></p>
+</form>
+</section>
+<section id="replay" hidden>
+<div class="panel">
+<p class="kicker" id="checkpoint"></p>
+<progress id="progress" max="12" value="0" aria-label="Locked decisions"></progress>
+<h2 id="checkpoint-heading" tabindex="-1"></h2>
+<p id="market-note"></p>
+<div class="scroll" id="chart"></div>
+<p class="muted">Gold line = prior swing high. Dashed gray line = range low. All bars and participation data are fictional.</p>
+<details>
+<summary>Visible bar data</summary>
+<div class="scroll"><table>
+<thead><tr><th scope="col">Time CT</th><th scope="col">Open</th><th scope="col">High</th><th scope="col">Low</th><th scope="col">Close</th><th scope="col">Volume</th><th scope="col">Delta</th></tr></thead>
+<tbody id="bar-data"></tbody>
+</table></div>
+</details>
+</div>
+<form id="decision" class="panel">
+<label class="field" for="classification">What does the visible auction support?</label>
+<select id="classification" required>
+<option value="">Choose a classification</option>
+<option>Breakout attempt, acceptance still unconfirmed</option>
+<option>Rejection, downside follow-through still unconfirmed</option>
+<option>Renewed buyer initiative</option>
+<option>Confirmed downside follow-through</option>
+<option>Rotation around or back inside the boundary</option>
+</select>
+<label class="field" for="action">Decision</label>
+<select id="action" required>
+<option value="">Choose an action</option>
+<option>Wait for more evidence</option>
+<option>Stand aside</option>
+<option>Consider a conditional long</option>
+<option>Consider a conditional short</option>
+</select>
+<label class="field" for="reason">What visible price and participation evidence supports your decision?</label>
+<textarea id="reason" required maxlength="1500"></textarea>
+<label class="field" for="condition">What would change your read? If considering a trade, give its structural invalidation and first objective.</label>
+<textarea id="condition" required maxlength="1500"></textarea>
+<button id="lock" type="submit"></button>
+<p class="error" id="error" role="alert"></p>
+</form>
+</section>
+<section id="review" class="panel" hidden aria-labelledby="review-title">
+<h2 id="review-title" tabindex="-1"></h2>
+<div id="case-feedback"></div>
+<button id="continue" type="button"></button>
+</section>
+<section id="final" class="panel" hidden aria-labelledby="final-title">
+<h2 id="final-title" tabindex="-1">Final decision review</h2>
+<p id="score"></p>
+<p>Classification is scored against the visible evidence at each checkpoint. Your action, written reasoning, and trade conditions are recorded for review. A later move does not change what was knowable when you locked your answer.</p>
+<details><summary>Review your original decisions</summary><p id="journal"></p></details>
+<button id="download" type="button">Download decision journal</button>
+<button id="restart" type="button" class="secondary">Restart lab</button>
+</section>
+<footer>Browser-only practice. Download your journal before closing. Decisions are held in this page during the session. No orders are placed and no results are submitted to Tutor LMS.</footer>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const format = price => price.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+const number = value => value.toLocaleString("en-US");
+const signed = value => (value > 0 ? "+" : "") + number(value);
+const times = ["09:35", "09:40", "09:45", "09:50", "09:55", "10:00"];
+// Each bar is open, high, low, close, total volume, classified delta.
+const shared = [
+  [5236, 5239.5, 5234, 5238.5, 1900, 180],
+  [5238.5, 5240, 5236.5, 5239.75, 2100, 320],
+  [5239.75, 5242, 5239.5, 5241.25, 3600, 1450]
+];
+const classifications = [
+  "Breakout attempt, acceptance still unconfirmed",
+  "Rejection, downside follow-through still unconfirmed",
+  "Renewed buyer initiative",
+  "Confirmed downside follow-through",
+  "Rotation around or back inside the boundary"
+];
+const first = {
+  answer: 0,
+  feedback: "Aggressive buying increased and price closed outside the range. The bar establishes a breakout attempt. The market has yet to show whether buyers can hold above 5,240."
+};
+const rejection = {
+  answer: 1,
+  feedback: "The close back inside the range shows rejection of the first break. Further evidence is needed to distinguish a sustained decline from a reclaim or rotation."
+};
+const cases = [
+  {
+    name: "Failed breakout develops into a decline",
+    bars: [[5241.25,5243,5238.75,5239.25,3900,1250],[5239.25,5239.75,5235.5,5236,3100,-1100],[5236,5236.5,5232.25,5233,3300,-1350]],
+    decisions: [first, rejection,
+      {answer:3, feedback:"The bounce could not retake 5,240, and negative delta accompanied new downside progress. 5,234 is the next known obstacle."},
+      {answer:3, feedback:"Sellers extended through the morning range low and closed below it. The decline now has follow-through beyond the original rejection."}]
+  },
+  {
+    name: "Buyers reclaim resistance and continue higher",
+    bars: [[5241.25,5243,5238.75,5239.25,3900,1250],[5239.25,5243.25,5239,5242.75,3200,1180],[5242.75,5245,5240.5,5244.5,3000,960]],
+    decisions: [first, rejection,
+      {answer:2, feedback:"Price reclaimed 5,240 and reached above the earlier 5,243 high and closed above resistance with positive delta. A test of the reclaimed level is still ahead."},
+      {answer:2, feedback:"The pullback held at 5,240.50 and buyers extended to a new high. The auction has supplied a reclaim, a held test, and higher prices."}]
+  },
+  {
+    name: "The auction remains rotational",
+    bars: [[5241.25,5243,5238.75,5239.25,3900,1250],[5239.25,5241.5,5237.75,5240.25,2300,-220],[5240.25,5241,5238,5239.5,2200,150]],
+    decisions: [first, rejection,
+      {answer:4, feedback:"The bar crossed 5,240 again, with a marginal close above it and no new high. Price is overlapping the prior rotation."},
+      {answer:4, feedback:"Price crossed the boundary again and closed back inside the range. Both sides have had opportunities to extend, and neither has sustained progress."}]
+  }
+];
+
+function shuffle(items) {
+  const order = [...items];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
+const order = shuffle(cases);
+const records = [];
+let plan = "";
+let caseIndex = 0;
+let step = 0;
+let phase = "preparation";
+
+function visibleBars() {
+  return [...shared, ...order[caseIndex].bars.slice(0, step)];
+}
+
+function draw(bars) {
+  // Shared scale across cases so the same distance always looks the same.
+  const y = price => 24 + (5246 - price) * 16;
+  const x = index => 142 + index * 92;
+  const axis = [5246,5243,5240,5237,5234,5231].map(price => {
+    const color = price === 5240 ? "#d4af37" : "#536984";
+    return `<line x1="88" x2="685" y1="${y(price)}" y2="${y(price)}" stroke="${color}" ${price === 5234 ? 'stroke-dasharray="6 5"' : ""}/><text x="78" y="${y(price)+4}" text-anchor="end" fill="${color === "#d4af37" ? color : "#b8c7da"}">${format(price)}</text>`;
+  }).join("");
+  const marks = bars.map(([open, high, low, close, volume, delta], index) => {
+    const cx = x(index);
+    const color = close >= open ? "#7cd8b0" : "#ffb1a0";
+    const top = Math.min(y(open), y(close));
+    const height = Math.max(2, Math.abs(y(open)-y(close)));
+    const volumeHeight = volume / 65;
+    return `<line x1="${cx}" x2="${cx}" y1="${y(high)}" y2="${y(low)}" stroke="${color}" stroke-width="2"/>
+      <rect x="${cx-13}" y="${top}" width="26" height="${height}" fill="${color}"/>
+      <rect x="${cx-13}" y="${358-volumeHeight}" width="26" height="${volumeHeight}" fill="#627f9d"/>
+      <text x="${cx}" y="378" text-anchor="middle" fill="#e8edf5">${times[index]}</text>
+      <text x="${cx}" y="398" text-anchor="middle" fill="${delta >= 0 ? "#7cd8b0" : "#ffb1a0"}">${signed(delta)}</text>`;
+  }).join("");
+  $("chart").innerHTML = `<svg viewBox="0 0 710 416" role="img" aria-labelledby="chart-title chart-desc">
+    <title id="chart-title">ES five-minute candles, volume, and delta</title>
+    <desc id="chart-desc">${bars.length} completed bars through ${times[bars.length-1]} Central. The visible bar data table provides exact values.</desc>
+    <g font-family="Arial,sans-serif" font-size="13">${axis}
+    <text x="78" y="317" text-anchor="end" fill="#b8c7da">Volume</text>
+    <text x="78" y="378" text-anchor="end" fill="#b8c7da">Time CT</text>
+    <text x="78" y="398" text-anchor="end" fill="#b8c7da">Delta</text>
+    <line x1="88" x2="685" y1="358" y2="358" stroke="#536984"/>${marks}</g></svg>`;
+  $("bar-data").innerHTML = bars.map(([open, high, low, close, volume, delta], i) =>
+    `<tr><th scope="row">${times[i]}</th><td>${format(open)}</td><td>${format(high)}</td><td>${format(low)}</td><td>${format(close)}</td><td>${number(volume)}</td><td>${signed(delta)}</td></tr>`).join("");
+}
+
+function showCheckpoint() {
+  const bars = visibleBars();
+  $("checkpoint").textContent = `CASE ${caseIndex + 1} OF 3 · CHECKPOINT ${step + 1} OF 4`;
+  $("progress").value = records.length;
+  $("checkpoint-heading").textContent = `Five-minute bar closed at ${times[bars.length-1]} CT`;
+  $("market-note").textContent = step === 0
+    ? "Compare the breakout bar with the earlier activity. What did the extra buying accomplish?"
+    : "Compare the latest bar with the prior attempt. Has price held, rejected, or crossed back through the boundary?";
+  draw(bars);
+  $("decision").reset();
+  $("error").textContent = "";
+  $("lock").textContent = step === 3 ? "Lock decision and review case" : "Lock decision and reveal next bar";
+  $("checkpoint-heading").focus();
+}
+
+$("preparation").addEventListener("submit", event => {
+  event.preventDefault();
+  if (phase !== "preparation") return;
+  plan = $("plan").value.trim();
+  if (!plan) {
+    $("prep-error").textContent = "Write a preparation note before starting.";
+    $("plan").focus();
+    return;
+  }
+  phase = "replay";
+  $("brief").hidden = true;
+  $("replay").hidden = false;
+  showCheckpoint();
+});
+
+$("decision").addEventListener("submit", event => {
+  event.preventDefault();
+  if (phase !== "replay") return;
+  const classification = $("classification").value;
+  const action = $("action").value;
+  const reason = $("reason").value.trim();
+  const condition = $("condition").value.trim();
+  if (!classification || !action || !reason || !condition) {
+    $("error").textContent = "Complete the classification, action, evidence, and change-of-read fields before locking.";
+    return;
+  }
+  const expected = order[caseIndex].decisions[step];
+  records.push({
+    caseNumber: caseIndex + 1, checkpoint: step + 1,
+    visibleBars: visibleBars().map((bar,i) => [times[i], ...bar]),
+    classification, action, reason, condition,
+    expected: classifications[expected.answer],
+    correct: classification === classifications[expected.answer],
+    feedback: expected.feedback
+  });
+  if (step < 3) {
+    step++;
+    showCheckpoint();
+    return;
+  }
+  showReview();
+});
+
+function showReview() {
+  phase = "review";
+  $("replay").hidden = true;
+  $("review").hidden = false;
+  $("review-title").textContent = `Case ${caseIndex+1} review — ${order[caseIndex].name}`;
+  $("case-feedback").replaceChildren();
+  for (const entry of records.slice(-4)) {
+    const heading = document.createElement("h3");
+    heading.textContent = `Checkpoint ${entry.checkpoint} · ${entry.correct ? "Classification matched" : "Review classification"}`;
+    const selection = document.createElement("p");
+    selection.textContent = `You chose: ${entry.classification}. Expected: ${entry.expected}.`;
+    const feedback = document.createElement("p");
+    feedback.textContent = entry.feedback;
+    $("case-feedback").append(heading, selection, feedback);
+  }
+  $("continue").textContent = caseIndex < 2 ? "Continue to next matched case" : "Open final review";
+  $("review-title").focus();
+}
+
+function journalEntry(entry) {
+  const data = entry.visibleBars.map(bar => bar.join(", ")).join("\n");
+  return `Case ${entry.caseNumber} · Checkpoint ${entry.checkpoint}
+Classification: ${entry.classification}
+Action: ${entry.action}
+Evidence: ${entry.reason}
+Change of read / trade conditions: ${entry.condition}
+Expected classification: ${entry.expected}
+Feedback: ${entry.feedback}
+Visible bars (CT, O, H, L, C, volume, delta):
+${data}`;
+}
+
+function scoreLine() {
+  return `${records.length}/12 decisions locked · ${records.filter(entry => entry.correct).length}/12 classifications matched`;
+}
+
+$("continue").addEventListener("click", () => {
+  if (phase !== "review") return;
+  $("review").hidden = true;
+  if (caseIndex < 2) {
+    caseIndex++;
+    step = 0;
+    phase = "replay";
+    $("replay").hidden = false;
+    showCheckpoint();
+    return;
+  }
+  phase = "final";
+  $("final").hidden = false;
+  $("score").textContent = scoreLine();
+  $("journal").textContent = records.map(journalEntry).join("\n\n");
+  $("final-title").focus();
+});
+
+$("download").addEventListener("click", () => {
+  if (phase !== "final") return;
+  const body = [
+    "WARDEN LAB 012 — THE BATTLE OF AGGRESSION",
+    scoreLine(),
+    "Original preparation\n" + plan,
+    "Case outcomes\n" + order.map((item,i) => `${i+1}. ${item.name}`).join("\n"),
+    records.map(journalEntry).join("\n\n")
+  ].join("\n\n");
+  const url = URL.createObjectURL(new Blob([body], { type:"text/plain;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "warden-lab-012-decision-journal.txt";
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+$("restart").addEventListener("click", () => {
+  if (confirm("Restart the lab? Download your current journal first.")) location.reload();
+});
+</script>
+</body>
+</html>
